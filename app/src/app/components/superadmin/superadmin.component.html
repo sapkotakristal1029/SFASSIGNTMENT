@@ -1,0 +1,25 @@
+<!-- super-admin.component.html -->
+<h2>Super Admin Dashboard</h2>
+
+<!-- List of Users -->
+<div>
+  <h3>Manage Users</h3>
+  <ul>
+    <li *ngFor="let user of users">
+      {{ user.username }} - Roles: {{ user.roles.join(", ") }}
+      <button
+        (click)="promoteToGroupAdmin(user.id)"
+        *ngIf="!user.roles.includes('Group Admin')"
+      >
+        Promote to Group Admin
+      </button>
+      <button
+        (click)="upgradeToSuperAdmin(user.id)"
+        *ngIf="!user.roles.includes('Super Admin')"
+      >
+        Upgrade to Super Admin
+      </button>
+      <button (click)="removeUser(user.id)">Remove User</button>
+    </li>
+  </ul>
+</div>

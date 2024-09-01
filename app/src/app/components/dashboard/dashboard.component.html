@@ -1,0 +1,38 @@
+<h2>Dashboard</h2>
+
+<!-- List of Groups -->
+<div>
+  <h3>Your Groups</h3>
+  <ul>
+    <li *ngFor="let group of groups">{{ group.name }}</li>
+  </ul>
+</div>
+
+<!-- Chat Functionality -->
+<h2>Chat</h2>
+<div>
+  <div *ngFor="let msg of messages">
+    <p>{{ msg }}</p>
+  </div>
+  <input [(ngModel)]="message" placeholder="Type your message here..." />
+  <button (click)="sendMessage()">Send</button>
+</div>
+
+<!-- User Actions -->
+<h2>User Actions</h2>
+<div>
+  <button (click)="logout()">Logout</button>
+  <button (click)="deleteAccount()">Delete Account</button>
+</div>
+
+<!-- Group Actions -->
+<h2>Group Actions</h2>
+<div>
+  <input [(ngModel)]="groupName" placeholder="Group Name" />
+  <button (click)="registerInterest(groupName)">Register Interest</button>
+</div>
+
+<div>
+  <button (click)="leaveGroup(1)">Leave Group 1</button>
+  <button (click)="joinChannel(1, 1)">Join Channel 1 in Group 1</button>
+</div>

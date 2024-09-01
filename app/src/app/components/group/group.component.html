@@ -1,0 +1,66 @@
+<h2>Group Management</h2>
+
+<!-- Create Group -->
+<div>
+  <h3>Create Group</h3>
+  <form (ngSubmit)="onCreateGroup()">
+    <div>
+      <label for="groupName">Group Name:</label>
+      <input
+        type="text"
+        id="groupName"
+        [(ngModel)]="groupName"
+        name="groupName"
+      />
+    </div>
+    <button type="submit">Create Group</button>
+  </form>
+</div>
+
+<!-- Create Channel -->
+<div>
+  <h3>Create Channel</h3>
+  <form (ngSubmit)="onCreateChannel()">
+    <div>
+      <label for="channelName">Channel Name:</label>
+      <input
+        type="text"
+        id="channelName"
+        [(ngModel)]="channelName"
+        name="channelName"
+      />
+    </div>
+    <div>
+      <label for="groupSelect">Select Group:</label>
+      <select
+        id="groupSelect"
+        [(ngModel)]="selectedGroupId"
+        name="selectedGroupId"
+      >
+        <option *ngFor="let group of groups" [value]="group.id">
+          {{ group.name }}
+        </option>
+      </select>
+    </div>
+    <button type="submit">Create Channel</button>
+  </form>
+</div>
+
+<!-- List of Groups and Channels -->
+<div>
+  <ul *ngIf="groups.length > 0">
+    <li *ngFor="let group of groups">
+      {{ group.name }}
+      <button (click)="onRemoveGroup(group.id)">Remove Group</button>
+      <ul>
+        <li *ngFor="let channel of group.channels">
+          {{ channel.name }}
+          <button (click)="onRemoveChannel(group.id, channel.id)">
+            Remove Channel
+          </button>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
+<div *ngIf="groups.length === 0">No groups created yet.</div>
