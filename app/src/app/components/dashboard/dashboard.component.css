@@ -1,0 +1,23 @@
+.group-item,
+.channel-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.group-item:hover,
+.channel-item:hover {
+  background-color: #f0f0f0;
+}
+
+.selected-group,
+.selected-channel {
+  background-color: #007bff;
+  color: white;
+}
+
+.group-item:not(.selected-group):hover,
+.channel-item:not(.selected-channel):hover {
+  background-color: #e7e7e7;
+}

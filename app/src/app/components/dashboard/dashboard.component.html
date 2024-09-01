@@ -1,16 +1,36 @@
 <h2>Dashboard</h2>
 
-<!-- List of Groups -->
+<!-- List of Groups and Channels -->
 <div>
-  <h3>Your Groups</h3>
-  <ul>
-    <li *ngFor="let group of groups">{{ group.name }}</li>
+  <h3>Your Groups and Channels</h3>
+  <ul *ngIf="groups.length > 0">
+    <li *ngFor="let group of groups">
+      <div
+        class="group-item"
+        [ngClass]="{ 'selected-group': selectedGroup === group.id }"
+        (click)="selectGroup(group.id)"
+      >
+        {{ group.name }}
+      </div>
+      <ul *ngIf="selectedGroup === group.id">
+        <button (click)="leaveGroup(group.id)">Leave Group 1</button>
+        <li
+          *ngFor="let channel of group.channels"
+          class="channel-item"
+          [ngClass]="{ 'selected-channel': selectedChannel === channel.id }"
+          (click)="selectChannel(channel.id)"
+        >
+          {{ channel.name }}
+        </li>
+      </ul>
+    </li>
   </ul>
+  <div *ngIf="groups.length === 0">No groups created yet.</div>
 </div>
 
 <!-- Chat Functionality -->
-<h2>Chat</h2>
-<div>
+<h2 *ngIf="selectedChannel">Chat</h2>
+<div *ngIf="selectedChannel">
   <div *ngFor="let msg of messages">
     <p>{{ msg }}</p>
   </div>
@@ -33,6 +53,5 @@
 </div>
 
 <div>
-  <button (click)="leaveGroup(1)">Leave Group 1</button>
   <button (click)="joinChannel(1, 1)">Join Channel 1 in Group 1</button>
 </div>

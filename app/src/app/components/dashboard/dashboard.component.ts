@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
@@ -15,11 +16,22 @@ import { HttpClientModule } from '@angular/common/http';
   styleUrls: ['./dashboard.component.css'],
 })
 export class DashboardComponent implements OnInit {
-  groups: { id: number; name: string }[] = [];
+  groups: {
+    id: number;
+    name: string;
+    channels: { id: number; name: string }[];
+  }[] = [];
+
+  users: any[] = [];
+
   message: string = '';
   messages: string[] = [];
-  userId: number = 3; // Example: Hardcoded user ID
+
   groupName: string = ''; // Added this variable to hold the group name for registering interest
+
+  selectedGroup: number | null = null;
+  selectedChannel: number | null = null;
+  messageSubscription: Subscription | null = null;
 
   constructor(
     private authService: AuthService,
@@ -30,14 +42,24 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadGroups();
-    this.loadMessages();
+    this.loadUsers();
+  }
+
+  loadUsers(): void {
+    this.authService.getUsers().subscribe(
+      (data) => {
+        this.users = data;
+      },
+      (error) => {
+        console.error('Error loading users:', error);
+      }
+    );
   }
 
   loadGroups(): void {
     this.groupService.getGroups().subscribe(
-      (data) => {
-        this.groups = data;
-        console.log('Groups loaded:', this.groups);
+      (groups) => {
+        this.groups = groups;
       },
       (error) => {
         console.error('Error loading groups:', error);
@@ -45,11 +67,26 @@ export class DashboardComponent implements OnInit {
     );
   }
 
-  loadMessages(): void {
-    this.chatService.getMessage().subscribe(
-      (message: string) => {
+  selectGroup(groupId: number): void {
+    if (this.selectedGroup !== groupId) {
+      this.selectedGroup = groupId;
+      this.selectedChannel = null; // Reset selected channel when group changes
+    }
+  }
+
+  selectChannel(channelId: number): void {
+    this.selectedChannel = channelId;
+    if (this.messageSubscription) {
+      this.messageSubscription.unsubscribe(); // Unsubscribe from previous channel messages
+    }
+    this.messages = []; // Clear previous messages
+    this.subscribeToMessages(channelId); // Subscribe to new channel messages
+  }
+
+  subscribeToMessages(channelId: number): void {
+    this.messageSubscription = this.chatService.getMessage(channelId).subscribe(
+      (message) => {
         this.messages.push(message);
-        console.log('Received message:', message);
       },
       (error) => {
         console.error('Error receiving messages:', error);
@@ -58,13 +95,11 @@ export class DashboardComponent implements OnInit {
   }
 
   sendMessage(): void {
-    if (this.message.trim()) {
-      try {
-        this.chatService.sendMessage(this.message);
-        this.message = '';
-      } catch (error) {
-        console.error('Error sending message:', error);
-      }
+    if (this.message.trim() && this.selectedChannel) {
+      this.chatService.sendMessage(this.message, this.selectedChannel);
+      this.message = '';
+    } else {
+      alert('Please select a channel to send messages.');
     }
   }
 
@@ -85,19 +120,13 @@ export class DashboardComponent implements OnInit {
   }
 
   deleteAccount(): void {
-    try {
-      this.authService.deleteAccount(this.userId).subscribe(
-        () => {
-          alert('Account deleted successfully');
-          this.router.navigate(['/login']);
-        },
-        (error) => {
-          console.error('Error deleting account:', error);
-          alert('Error deleting account');
-        }
-      );
-    } catch (error) {
-      console.error('Unexpected error during account deletion:', error);
+    const currentUser = this.authService.getCurrentUser();
+    if (currentUser) {
+      const userId = currentUser.id;
+      this.authService.deleteAccount(userId).subscribe(() => {
+        this.loadUsers();
+        this.router.navigate(['/login']);
+      });
     }
   }
 

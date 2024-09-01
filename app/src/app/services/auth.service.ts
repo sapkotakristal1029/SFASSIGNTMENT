@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { catchError, Observable, throwError } from 'rxjs';
+import { catchError, Observable, tap, throwError } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
   private apiUrl = 'http://localhost:3000';
+  private currentUser: any = null;
 
   constructor(private http: HttpClient) {}
 
@@ -14,7 +15,16 @@ export class AuthService {
     if (!username || !password) {
       return throwError(() => new Error('Username and password are required.'));
     }
-    return this.http.post(`${this.apiUrl}/login`, { username, password });
+    return this.http.post(`${this.apiUrl}/login`, { username, password }).pipe(
+      tap((response: any) => {
+        // Store the user data on successful login
+        this.currentUser = response.user;
+      })
+    );
+  }
+  // Getter method to retrieve the current user
+  getCurrentUser(): any {
+    return this.currentUser;
   }
 
   register(user: any): Observable<any> {
