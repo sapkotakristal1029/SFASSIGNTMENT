@@ -1,19 +1,58 @@
 <!-- login.component.html -->
-<h2>Login</h2>
-<form (ngSubmit)="onLogin()">
-  <div>
+<div class="login-container">
+  <h2>Login</h2>
+  <form>
     <label for="username">Username:</label>
-    <input type="text" id="username" [(ngModel)]="username" name="username" />
-  </div>
-  <div>
+    <input
+      type="text"
+      id="username"
+      [(ngModel)]="username"
+      name="username"
+      required
+    />
+
     <label for="password">Password:</label>
     <input
       type="password"
       id="password"
       [(ngModel)]="password"
       name="password"
+      required
     />
-  </div>
-  <button type="submit">Login</button>
-</form>
-<p *ngIf="errorMessage">{{ errorMessage }}</p>
+
+    <button (click)="onLogin()">Login</button>
+  </form>
+
+  <h2>Register</h2>
+  <form>
+    <label for="regUsername">Username:</label>
+    <input
+      type="text"
+      id="regUsername"
+      [(ngModel)]="regUsername"
+      name="regUsername"
+      required
+    />
+
+    <label for="regEmail">Email:</label>
+    <input
+      type="email"
+      id="regEmail"
+      [(ngModel)]="regEmail"
+      name="regEmail"
+      required
+    />
+
+    <label for="regPassword">Password:</label>
+    <input
+      type="password"
+      id="regPassword"
+      [(ngModel)]="regPassword"
+      name="regPassword"
+      required
+    />
+
+    <button (click)="onRegister()">Register</button>
+  </form>
+  <p *ngIf="errorMessage">{{ errorMessage }}</p>
+</div>

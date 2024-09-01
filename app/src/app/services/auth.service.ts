@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { catchError, Observable, throwError } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -23,7 +23,17 @@ export class AuthService {
         () => new Error('Username, password, and email are required.')
       );
     }
-    return this.http.post(`${this.apiUrl}/user`, user);
+    return this.http.post(`${this.apiUrl}/user`, user).pipe(
+      catchError((error: HttpErrorResponse) => {
+        // Convert server error to a user-friendly message
+        let errorMessage = 'Registration failed. Please try again.';
+        if (error.status === 409) {
+          errorMessage =
+            'Username already exists. Please choose a different username.';
+        }
+        return throwError(() => new Error(errorMessage));
+      })
+    );
   }
 
   promoteToGroupAdmin(userId: number): Observable<any> {

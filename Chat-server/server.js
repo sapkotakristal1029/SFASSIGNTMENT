@@ -101,16 +101,22 @@ app.post("/login", (req, res) => {
 // User Registration Route
 app.post("/user", (req, res) => {
   const { username, email, password } = req.body;
-  const newUser = {
-    id: users.length + 1,
-    username,
-    email,
-    password,
-    roles: ["User"],
-    groups: [],
-  };
-  users.push(newUser);
-  res.status(201).send({ message: "User created", user: newUser });
+  const usernameExists = users.some((u) => u.username === username);
+  if (usernameExists) {
+    // Send a 409 Conflict status code with a message
+    res.status(409).send({ message: "Username already exists" });
+  } else {
+    const newUser = {
+      id: users.length + 1,
+      username,
+      email,
+      password,
+      roles: ["User"],
+      groups: [],
+    };
+    users.push(newUser);
+    res.status(201).send({ message: "User created", user: newUser });
+  }
 });
 
 // Promote User to Group Admin Route
