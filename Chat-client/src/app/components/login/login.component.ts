@@ -26,6 +26,9 @@ export class LoginComponent {
     this.authService.login(this.username, this.password).subscribe({
       next: (response: any) => {
         const user = response.user;
+
+        // Store the authenticated user in localStorage
+        localStorage.setItem('currentUser', JSON.stringify(user));
         if (user.roles.includes('Super Admin')) {
           this.router.navigate(['/super-admin']);
         } else if (user.roles.includes('Group Admin')) {

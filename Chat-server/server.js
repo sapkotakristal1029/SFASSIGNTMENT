@@ -56,7 +56,9 @@ const users = [
     username: "user",
     password: "123",
     roles: ["User"],
-    groups: [],
+    groups: [
+      { id: 11, name: "string", channels: [{ id: 11, name: "string" }] },
+    ],
   },
   {
     id: 4,

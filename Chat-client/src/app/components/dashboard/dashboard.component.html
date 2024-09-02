@@ -1,10 +1,30 @@
 <h2>Dashboard</h2>
 
-<!-- List of Groups and Channels -->
+<!-- All Groups Section -->
+<div>
+  <h3>All Groups</h3>
+  <ul *ngIf="allGroups.length > 0">
+    <li *ngFor="let group of allGroups">
+      <div>
+        {{ group.name }}
+        <!-- Disable the button if the group is already in userGroups -->
+        <button
+          (click)="sendJoinRequest(group.id)"
+          [disabled]="isGroupInUserGroups(group.id)"
+        >
+          Send Join Request
+        </button>
+      </div>
+    </li>
+  </ul>
+  <div *ngIf="allGroups.length === 0">No groups available.</div>
+</div>
+
+<!-- Your Groups Section -->
 <div>
   <h3>Your Groups and Channels</h3>
-  <ul *ngIf="groups.length > 0">
-    <li *ngFor="let group of groups">
+  <ul *ngIf="userGroups.length > 0">
+    <li *ngFor="let group of userGroups">
       <div
         class="group-item"
         [ngClass]="{ 'selected-group': selectedGroup === group.id }"
@@ -13,7 +33,7 @@
         {{ group.name }}
       </div>
       <ul *ngIf="selectedGroup === group.id">
-        <button (click)="leaveGroup(group.id)">Leave Group 1</button>
+        <button (click)="leaveGroup(group.id)">Leave Group</button>
         <li
           *ngFor="let channel of group.channels"
           class="channel-item"
@@ -25,7 +45,7 @@
       </ul>
     </li>
   </ul>
-  <div *ngIf="groups.length === 0">No groups created yet.</div>
+  <div *ngIf="userGroups.length === 0">No groups joined yet.</div>
 </div>
 
 <!-- Chat Functionality -->

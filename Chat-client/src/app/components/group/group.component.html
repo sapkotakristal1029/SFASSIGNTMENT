@@ -1,4 +1,16 @@
 <h2>Group Management</h2>
+<!-- Recent Notifications Section -->
+<div>
+  <h3>Recent Notifications</h3>
+  <ul *ngIf="notifications.length > 0">
+    <li *ngFor="let notification of notifications; let i = index">
+      {{ notification.message }}
+      <button (click)="onApprove(notification, i)">Approve</button>
+      <button (click)="onDelete(i)">Delete</button>
+    </li>
+  </ul>
+  <div *ngIf="notifications.length === 0">No notifications available.</div>
+</div>
 
 <!-- Create Group -->
 <div>

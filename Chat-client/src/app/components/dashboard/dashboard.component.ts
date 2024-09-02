@@ -16,7 +16,8 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./dashboard.component.css'],
 })
 export class DashboardComponent implements OnInit {
-  groups: {
+  allGroups: { id: number; name: string }[] = [];
+  userGroups: {
     id: number;
     name: string;
     channels: { id: number; name: string }[];
@@ -41,7 +42,8 @@ export class DashboardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loadGroups();
+    this.loadAllGroups();
+    this.loadUserGroups();
     this.loadUsers();
   }
 
@@ -56,13 +58,38 @@ export class DashboardComponent implements OnInit {
     );
   }
 
-  loadGroups(): void {
-    this.groupService.getGroups().subscribe(
+  loadAllGroups(): void {
+    this.groupService.getAllGroups().subscribe(
       (groups) => {
-        this.groups = groups;
+        this.allGroups = groups;
       },
       (error) => {
-        console.error('Error loading groups:', error);
+        console.error('Error loading all groups:', error);
+      }
+    );
+  }
+
+  loadUserGroups(): void {
+    this.groupService.getUserGroups().subscribe(
+      (groups) => {
+        this.userGroups = groups;
+      },
+      (error) => {
+        console.error('Error loading user groups:', error);
+      }
+    );
+  }
+  isGroupInUserGroups(groupId: number): boolean {
+    return this.userGroups.some((group) => group.id === groupId);
+  }
+
+  sendJoinRequest(groupId: number): void {
+    this.groupService.sendJoinRequest(groupId).subscribe(
+      (response) => {
+        alert(response.message);
+      },
+      (error) => {
+        console.error('Error sending join request:', error);
       }
     );
   }
@@ -136,7 +163,7 @@ export class DashboardComponent implements OnInit {
         (response) => {
           if (response.message) {
             alert(response.message);
-            this.loadGroups();
+            this.loadUserGroups();
           } else {
             alert(response.error);
           }

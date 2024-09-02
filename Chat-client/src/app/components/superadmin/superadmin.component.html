@@ -1,0 +1,105 @@
+<!-- super-admin.component.html -->
+<h2>Super Admin Dashboard</h2>
+<!-- Recent Notifications Section -->
+<div>
+  <h3>Recent Notifications</h3>
+  <ul *ngIf="notifications.length > 0">
+    <li *ngFor="let notification of notifications; let i = index">
+      {{ notification.message }}
+      <button (click)="onApprove(notification, i)">Approve</button>
+      <button (click)="onDelete(i)">Delete</button>
+    </li>
+  </ul>
+  <div *ngIf="notifications.length === 0">No notifications available.</div>
+</div>
+
+<!-- List of Users -->
+<div>
+  <h3>Manage Users</h3>
+  <ul>
+    <li *ngFor="let user of users">
+      {{ user.username }} - Roles: {{ user.roles.join(", ") }}
+      <button
+        (click)="promoteToGroupAdmin(user.id)"
+        *ngIf="!user.roles.includes('Group Admin')"
+      >
+        Promote to Group Admin
+      </button>
+      <button
+        (click)="upgradeToSuperAdmin(user.id)"
+        *ngIf="!user.roles.includes('Super Admin')"
+      >
+        Upgrade to Super Admin
+      </button>
+      <button (click)="removeUser(user.id)">Remove User</button>
+    </li>
+  </ul>
+</div>
+
+<!-- Create GROUP AND CHANNEL -->
+<div>
+  <!-- Create Group -->
+  <div>
+    <h3>Create Group</h3>
+    <form (ngSubmit)="onCreateGroup()">
+      <div>
+        <label for="groupName">Group Name:</label>
+        <input
+          type="text"
+          id="groupName"
+          [(ngModel)]="groupName"
+          name="groupName"
+        />
+      </div>
+      <button type="submit">Create Group</button>
+    </form>
+  </div>
+
+  <!-- Create Channel -->
+  <div>
+    <h3>Create Channel</h3>
+    <form (ngSubmit)="onCreateChannel()">
+      <div>
+        <label for="channelName">Channel Name:</label>
+        <input
+          type="text"
+          id="channelName"
+          [(ngModel)]="channelName"
+          name="channelName"
+        />
+      </div>
+      <div>
+        <label for="groupSelect">Select Group:</label>
+        <select
+          id="groupSelect"
+          [(ngModel)]="selectedGroupId"
+          name="selectedGroupId"
+        >
+          <option *ngFor="let group of groups" [value]="group.id">
+            {{ group.name }}
+          </option>
+        </select>
+      </div>
+      <button type="submit">Create Channel</button>
+    </form>
+  </div>
+
+  <!-- List of Groups and Channels -->
+  <div>
+    <ul *ngIf="groups.length > 0">
+      <li *ngFor="let group of groups">
+        {{ group.name }}
+        <button (click)="onRemoveGroup(group.id)">Remove Group</button>
+        <ul>
+          <li *ngFor="let channel of group.channels">
+            {{ channel.name }}
+            <button (click)="onRemoveChannel(group.id, channel.id)">
+              Remove Channel
+            </button>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+  <div *ngIf="groups.length === 0">No groups created yet.</div>
+</div>
