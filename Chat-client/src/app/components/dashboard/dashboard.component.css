@@ -1,23 +1,145 @@
+/* General container styling */
+.dashboard-container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Headings */
+h2,
+h3 {
+  color: #333;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+/* Group and channel list styling */
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
 .group-item,
 .channel-item {
-  padding: 8px 12px;
+  padding: 10px 15px;
+  margin: 5px 0;
   cursor: pointer;
-  border-radius: 4px;
-  transition: background-color 0.3s;
+  border-radius: 6px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  transition: all 0.3s;
 }
 
 .group-item:hover,
 .channel-item:hover {
-  background-color: #f0f0f0;
+  background-color: #f1f1f1;
+  border-color: #ccc;
 }
 
 .selected-group,
 .selected-channel {
   background-color: #007bff;
   color: white;
+  border-color: #007bff;
 }
 
 .group-item:not(.selected-group):hover,
 .channel-item:not(.selected-channel):hover {
   background-color: #e7e7e7;
+}
+
+/* Button styling */
+.action-btn {
+  padding: 10px 15px;
+  margin-top: 10px;
+  margin-right: 10px;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  color: #fff;
+  background-color: #28a745;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.action-btn:hover {
+  background-color: #218838;
+}
+
+button[disabled] {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Specific button styling */
+.leave-group-btn {
+  background-color: #ffc107;
+}
+
+.leave-group-btn:hover {
+  background-color: #e0a800;
+}
+
+.logout-btn {
+  background-color: #dc3545;
+}
+
+.logout-btn:hover {
+  background-color: #c82333;
+}
+
+.delete-account-btn {
+  background-color: #343a40;
+}
+
+.delete-account-btn:hover {
+  background-color: #23272b;
+}
+
+/* Input styling */
+.chat-input {
+  width: calc(100% - 20px);
+  padding: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  transition: border-color 0.3s;
+}
+
+.chat-input:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+/* Message styling */
+.messages {
+  margin-bottom: 10px;
+}
+
+.message-item p {
+  padding: 8px 12px;
+  border-radius: 4px;
+  background-color: #e9ecef;
+  margin: 5px 0;
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+  .dashboard-container {
+    padding: 15px;
+  }
+
+  button {
+    width: 100%;
+    margin: 10px 0;
+  }
+
+  .chat-input {
+    width: 100%;
+  }
 }

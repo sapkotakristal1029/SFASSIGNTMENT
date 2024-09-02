@@ -1,8 +1,10 @@
+import { AuthService } from './../../services/auth.service';
 import { Component, OnInit } from '@angular/core';
 import { GroupService } from '../../services/group.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-group',
@@ -17,6 +19,16 @@ export class GroupComponent implements OnInit {
   groupName: string = '';
   channelName: string = '';
   selectedGroupId: number | null = null;
+  currentUser: {
+    id: number;
+    username: string;
+    password: string;
+    roles: string[];
+    groups: string[];
+  } | null = null;
+
+  users: any[] = [];
+
   groups: {
     id: number;
     name: string;
@@ -24,14 +36,32 @@ export class GroupComponent implements OnInit {
     channels: { id: number; name: string }[];
   }[] = [];
 
-  constructor(private groupService: GroupService) {}
+  constructor(
+    private groupService: GroupService,
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
+    const currentUser = this.authService.getCurrentUser();
+    this.currentUser = currentUser;
     this.loadNotifications();
+    this.loadUsers();
     this.groupService.getAllGroups().subscribe((groups) => {
       this.groups = groups;
     });
   }
+  loadUsers(): void {
+    this.authService.getUsers().subscribe(
+      (data) => {
+        this.users = data;
+      },
+      (error) => {
+        console.error('Error loading users:', error);
+      }
+    );
+  }
+
   loadNotifications(): void {
     this.groupService.getNotifications().subscribe(
       (notifications) => {
@@ -55,8 +85,8 @@ export class GroupComponent implements OnInit {
       .approveJoinRequest(notification.groupId, notification.userId)
       .subscribe(
         () => {
-          this.notifications.splice(index, 1);
-          this.groupService.deleteNotification(index);
+          this.notifications.splice(index, 1); // Remove from array in memory
+          this.groupService.deleteNotification(index); // Remove from localStorage
         },
         (error) => {
           console.error('Error approving join request:', error);
@@ -65,8 +95,8 @@ export class GroupComponent implements OnInit {
   }
 
   onDelete(index: number): void {
-    this.notifications.splice(index, 1);
-    this.groupService.deleteNotification(index); // Save changes
+    this.notifications.splice(index, 1); // Remove from array in memory
+    this.groupService.deleteNotification(index); // Remove from localStorage
   }
 
   onCreateGroup(): void {
@@ -107,5 +137,31 @@ export class GroupComponent implements OnInit {
   onBanUserFromChannel(groupId: number, channelId: number): void {
     const userId = 1; // Example: assuming user ID 1 is to be banned
     alert(`User ${userId} has been banned from channel ${channelId}.`);
+  }
+  logout(): void {
+    try {
+      this.authService.logout().subscribe(
+        () => {
+          this.router.navigate(['/login']);
+        },
+        (error) => {
+          console.error('Error logging out:', error);
+          alert('Error logging out');
+        }
+      );
+    } catch (error) {
+      console.error('Unexpected error during logout:', error);
+    }
+  }
+
+  deleteAccount(): void {
+    const currentUser = this.authService.getCurrentUser();
+    if (currentUser) {
+      const userId = currentUser.id;
+      this.authService.deleteAccount(userId).subscribe(() => {
+        this.loadUsers();
+        this.router.navigate(['/login']);
+      });
+    }
   }
 }

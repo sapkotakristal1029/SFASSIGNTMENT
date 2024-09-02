@@ -108,19 +108,17 @@ export class GroupService {
 
   approveJoinRequest(groupId: number, userId: number): Observable<any> {
     const group = this.groups.find((g) => g.id === groupId);
-    console.log(group);
     if (group && !group.userIds.includes(userId)) {
       group.userIds.push(userId);
       this.saveGroupsToStorage();
-      console.log(group);
       return of({ message: 'User added to group successfully' });
     }
     return of({ error: 'Group not found or user already in group' });
   }
 
   deleteNotification(index: number): void {
-    this.notifications.splice(index, 1);
-    this.saveNotificationsToStorage();
+    this.notifications.splice(index, 1); // Remove notification from array
+    this.saveNotificationsToStorage(); // Save updated array to localStorage
   }
 
   createGroup(name: string) {

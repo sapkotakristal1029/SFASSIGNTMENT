@@ -1,77 +1,88 @@
-<h2>Dashboard</h2>
+<div class="dashboard-container">
+  <h2>Dashboard</h2>
 
-<!-- All Groups Section -->
-<div>
-  <h3>All Groups</h3>
-  <ul *ngIf="allGroups.length > 0">
-    <li *ngFor="let group of allGroups">
-      <div>
-        {{ group.name }}
-        <!-- Disable the button if the group is already in userGroups -->
-        <button
-          (click)="sendJoinRequest(group.id)"
-          [disabled]="isGroupInUserGroups(group.id)"
-        >
-          Send Join Request
-        </button>
-      </div>
-    </li>
-  </ul>
-  <div *ngIf="allGroups.length === 0">No groups available.</div>
-</div>
-
-<!-- Your Groups Section -->
-<div>
-  <h3>Your Groups and Channels</h3>
-  <ul *ngIf="userGroups.length > 0">
-    <li *ngFor="let group of userGroups">
-      <div
-        class="group-item"
-        [ngClass]="{ 'selected-group': selectedGroup === group.id }"
-        (click)="selectGroup(group.id)"
-      >
-        {{ group.name }}
-      </div>
-      <ul *ngIf="selectedGroup === group.id">
-        <button (click)="leaveGroup(group.id)">Leave Group</button>
-        <li
-          *ngFor="let channel of group.channels"
-          class="channel-item"
-          [ngClass]="{ 'selected-channel': selectedChannel === channel.id }"
-          (click)="selectChannel(channel.id)"
-        >
-          {{ channel.name }}
-        </li>
-      </ul>
-    </li>
-  </ul>
-  <div *ngIf="userGroups.length === 0">No groups joined yet.</div>
-</div>
-
-<!-- Chat Functionality -->
-<h2 *ngIf="selectedChannel">Chat</h2>
-<div *ngIf="selectedChannel">
-  <div *ngFor="let msg of messages">
-    <p>{{ msg }}</p>
+  <!-- All Groups Section -->
+  <div>
+    <h3>All Groups</h3>
+    <ul *ngIf="allGroups.length > 0">
+      <li *ngFor="let group of allGroups" class="group-item">
+        <div class="group-content">
+          {{ group.name }}
+          <button
+            class="action-btn"
+            (click)="sendJoinRequest(group.id)"
+            [disabled]="isGroupInUserGroups(group.id)"
+          >
+            Send Join Request
+          </button>
+        </div>
+      </li>
+    </ul>
+    <div *ngIf="allGroups.length === 0">No groups available.</div>
   </div>
-  <input [(ngModel)]="message" placeholder="Type your message here..." />
-  <button (click)="sendMessage()">Send</button>
-</div>
 
-<!-- User Actions -->
-<h2>User Actions</h2>
-<div>
-  <button (click)="logout()">Logout</button>
-  <button (click)="deleteAccount()">Delete Account</button>
-</div>
+  <!-- Your Groups Section -->
+  <div>
+    <h3>Your Groups and Channels</h3>
+    <ul *ngIf="userGroups.length > 0">
+      <li *ngFor="let group of userGroups">
+        <div
+          class="group-item"
+          [ngClass]="{ 'selected-group': selectedGroup === group.id }"
+          (click)="selectGroup(group.id)"
+        >
+          Group{{ group.id }}: {{ group.name }}
+        </div>
+        <ul *ngIf="selectedGroup === group.id">
+          <button
+            class="action-btn leave-group-btn"
+            (click)="leaveGroup(group.id)"
+          >
+            Leave Group
+          </button>
+          <li
+            *ngFor="let channel of group.channels"
+            class="channel-item"
+            [ngClass]="{ 'selected-channel': selectedChannel === channel.id }"
+            (click)="selectChannel(channel.id)"
+          >
+            Channel{{ channel.id }}: {{ channel.name }}
+          </li>
+        </ul>
+      </li>
+    </ul>
+    <div *ngIf="userGroups.length === 0">No groups joined yet.</div>
+  </div>
 
-<!-- Group Actions -->
-<h2>Group Actions</h2>
-<div>
-  <input [(ngModel)]="groupName" placeholder="Group Name" />
-  <button (click)="registerInterest(groupName)">Register Interest</button>
-</div>
+  <!-- Chat Functionality -->
+  <h2 *ngIf="selectedChannel">Chat</h2>
+  <div *ngIf="selectedChannel" class="chat-container">
+    <div class="messages">
+      <div *ngFor="let msg of messages" class="message-item">
+        <p>{{ msg }}</p>
+      </div>
+    </div>
+    <input
+      [(ngModel)]="message"
+      class="chat-input"
+      placeholder="Type your message here..."
+    />
+    <button class="action-btn send-btn" (click)="sendMessage()">Send</button>
+  </div>
 
-<div>
-  <button (click)="joinChannel(1, 1)">Join Channel 1 in Group 1</button>
+  <!-- User Actions -->
+  <h2>User Actions</h2>
+  <div *ngIf="currentUser" class="user-info">
+    <p><strong>ID:</strong> {{ currentUser.id }}</p>
+    <p><strong>Username:</strong> {{ currentUser.username }}</p>
+    <p><strong>Password:</strong> {{ currentUser.password }}</p>
+    <p><strong>Roles:</strong> {{ currentUser.roles.join(", ") }}</p>
+  </div>
+
+  <div class="action-buttons">
+    <button class="action-btn logout-btn" (click)="logout()">Logout</button>
+    <button class="action-btn delete-account-btn" (click)="deleteAccount()">
+      Delete Account
+    </button>
+  </div>
 </div>

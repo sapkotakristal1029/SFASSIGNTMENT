@@ -1,0 +1,93 @@
+/* Container styling */
+.login-container {
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 30px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  font-family: Arial, sans-serif;
+}
+
+/* Headings */
+.login-container h2 {
+  margin-bottom: 20px;
+  color: #333;
+  text-align: center;
+}
+
+/* Form and input styling */
+.login-container form {
+  display: flex;
+  flex-direction: column;
+}
+
+.login-container label {
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #555;
+}
+
+.login-container input {
+  padding: 10px;
+  margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  transition: border-color 0.3s;
+}
+
+.login-container input:focus {
+  border-color: #3f51b5;
+  outline: none;
+}
+
+/* Button styling */
+.login-container button {
+  padding: 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  color: #fff;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.login-container .login-btn {
+  background-color: #3f51b5;
+  margin-bottom: 10px;
+}
+
+.login-container .login-btn:hover {
+  background-color: #303f9f;
+}
+
+.login-container .register-btn {
+  background-color: #ff5722;
+}
+
+.login-container .register-btn:hover {
+  background-color: #e64a19;
+}
+
+/* Error message styling */
+.login-container .error-message {
+  margin-top: 20px;
+  color: #d32f2f;
+  text-align: center;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .login-container {
+    padding: 20px;
+  }
+
+  .login-container input {
+    padding: 8px;
+  }
+
+  .login-container button {
+    padding: 10px;
+  }
+}

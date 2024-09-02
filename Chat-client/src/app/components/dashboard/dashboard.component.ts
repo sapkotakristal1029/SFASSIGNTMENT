@@ -23,6 +23,14 @@ export class DashboardComponent implements OnInit {
     channels: { id: number; name: string }[];
   }[] = [];
 
+  currentUser: {
+    id: number;
+    username: string;
+    password: string;
+    roles: string[];
+    groups: string[];
+  } | null = null;
+
   users: any[] = [];
 
   message: string = '';
@@ -42,6 +50,15 @@ export class DashboardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    this.currentUser = currentUser;
+
+    // Ensure user-specific data is loaded correctly
     this.loadAllGroups();
     this.loadUserGroups();
     this.loadUsers();
