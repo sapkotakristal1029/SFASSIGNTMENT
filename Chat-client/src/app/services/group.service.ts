@@ -31,6 +31,30 @@ export class GroupService {
       return false;
     }
   }
+  private initCounts() {
+    if (!localStorage.getItem('groupCount')) {
+      localStorage.setItem('groupCount', '0');
+    }
+    if (!localStorage.getItem('channelCount')) {
+      localStorage.setItem('channelCount', '0');
+    }
+  }
+  private getGroupCount(): number {
+    return parseInt(localStorage.getItem('groupCount') || '0', 10);
+  }
+
+  private getChannelCount(): number {
+    return parseInt(localStorage.getItem('channelCount') || '0', 10);
+  }
+  private incrementGroupCount(): void {
+    const count = this.getGroupCount() + 1;
+    localStorage.setItem('groupCount', count.toString());
+  }
+
+  private incrementChannelCount(): void {
+    const count = this.getChannelCount() + 1;
+    localStorage.setItem('channelCount', count.toString());
+  }
 
   // Load groups from localStorage
   private loadGroupsFromStorage() {
@@ -59,6 +83,7 @@ export class GroupService {
   // Save notifications to localStorage
   private saveNotificationsToStorage() {
     if (this.isLocalStorageAvailable()) {
+      console.log(this.notifications);
       localStorage.setItem('notifications', JSON.stringify(this.notifications));
     }
   }
@@ -90,9 +115,11 @@ export class GroupService {
 
   sendJoinRequest(groupId: number): Observable<any> {
     if (this.isLocalStorageAvailable()) {
+      console.log('gahga');
       const currentUser = JSON.parse(localStorage.getItem('currentUser')!);
       const group = this.groups.find((g) => g.id === groupId);
       if (group) {
+        console.log(true);
         const notification: Notification = {
           message: `${currentUser.username} has requested to join ${group.name}`,
           groupId: groupId,
@@ -121,22 +148,26 @@ export class GroupService {
     this.saveNotificationsToStorage(); // Save updated array to localStorage
   }
 
-  createGroup(name: string) {
+  createGroup(name: string, id: number) {
     const newGroup = {
-      id: this.groups.length + 1,
+      id: this.getGroupCount() + 1,
       name,
-      userIds: [],
+      userIds: [id],
       channels: [],
     };
     this.groups.push(newGroup);
+    this.incrementGroupCount(); // Increment the group count
     this.saveGroupsToStorage();
   }
 
   createChannel(channelName: string, groupId: number) {
+    console.log(groupId);
     const group = this.groups.find((g) => g.id == groupId);
     if (group) {
-      const newChannel = { id: group.channels.length + 1, name: channelName };
+      console.log(group.id);
+      const newChannel = { id: this.getChannelCount() + 1, name: channelName };
       group.channels.push(newChannel);
+      this.incrementChannelCount(); // Increment the channel count
       this.saveGroupsToStorage();
     }
   }
@@ -160,6 +191,24 @@ export class GroupService {
     console.log(
       `User ${userId} is banned from Channel ${channelId} in Group ${groupId}`
     );
+  }
+
+  sendUserRemovalNotification(userId: number): Observable<any> {
+    const currentUser = JSON.parse(localStorage.getItem('currentUser')!);
+    if (currentUser) {
+      const notification: Notification = {
+        message: `User ${currentUser.username} has been removed from the group.`,
+        groupId: 0, // Not specific to any group
+        userId: userId,
+      };
+
+      // Push the notification for the Super Admin
+      this.notifications.push(notification);
+      this.saveNotificationsToStorage(); // Save the updated notifications to localStorage
+
+      return of({ message: 'Notification sent to Super Admin.' });
+    }
+    return of({ error: 'User not found.' });
   }
 
   leaveGroup(groupId: number): Observable<any> {

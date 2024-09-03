@@ -35,54 +35,7 @@ io.on("connection", (socket) => {
   });
 });
 
-// Data Storage
-const users = [
-  {
-    id: 1,
-    username: "super",
-    password: "123",
-    roles: ["Super Admin"],
-    groups: [],
-  },
-  {
-    id: 2,
-    username: "group",
-    password: "123",
-    roles: ["Group Admin"],
-    groups: [],
-  },
-  {
-    id: 3,
-    username: "user",
-    password: "123",
-    roles: ["User"],
-    groups: [
-      { id: 11, name: "string", channels: [{ id: 11, name: "string" }] },
-    ],
-  },
-  {
-    id: 4,
-    username: "super1",
-    password: "123",
-    roles: ["Super Admin"],
-    groups: [],
-  },
-  {
-    id: 5,
-    username: "group1",
-    password: "123",
-    roles: ["Group Admin"],
-    groups: [],
-  },
-  {
-    id: 6,
-    username: "user1",
-    password: "123",
-    roles: ["User"],
-    groups: [],
-  },
-];
-
+const users = require("./data/users.json");
 const groups = [];
 const channels = [];
 

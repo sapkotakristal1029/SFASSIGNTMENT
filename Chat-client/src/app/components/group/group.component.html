@@ -91,6 +91,20 @@
   </div>
   <div *ngIf="groups.length === 0">No groups created yet.</div>
 
+  <!-- List of Users -->
+  <div>
+    <h3>Manage Users</h3>
+    <ul>
+      <li *ngFor="let user of activeUsers">
+        {{ user.username }} - Roles: {{ user.roles.join(", ") }}
+
+        <button class="remove-button" (click)="removeUser(user.id)">
+          Ban user
+        </button>
+      </li>
+    </ul>
+  </div>
+
   <h2>User Actions</h2>
   <div *ngIf="currentUser" class="user-actions">
     <p><strong>ID:</strong> {{ currentUser.id }}</p>

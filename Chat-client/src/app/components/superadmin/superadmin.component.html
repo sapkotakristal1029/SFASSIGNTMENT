@@ -7,7 +7,11 @@
     <ul *ngIf="notifications.length > 0">
       <li *ngFor="let notification of notifications; let i = index">
         {{ notification.message }}
-        <button class="action-button" (click)="onApprove(notification, i)">
+        <button
+          class="action-button"
+          (click)="onApprove(notification, i)"
+          [disabled]="notification.groupId == 0"
+        >
           Approve
         </button>
         <button class="remove-button" (click)="onDelete(i)">Delete</button>

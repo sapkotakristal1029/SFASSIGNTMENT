@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { map, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-group',
@@ -28,6 +29,7 @@ export class GroupComponent implements OnInit {
   } | null = null;
 
   users: any[] = [];
+  activeUsers: any[] = [];
 
   groups: {
     id: number;
@@ -45,11 +47,12 @@ export class GroupComponent implements OnInit {
   ngOnInit(): void {
     const currentUser = this.authService.getCurrentUser();
     this.currentUser = currentUser;
-    this.loadNotifications();
+
+    if (this.currentUser) {
+      this.loadGroupsAndNotifications();
+    }
+
     this.loadUsers();
-    this.groupService.getAllGroups().subscribe((groups) => {
-      this.groups = groups;
-    });
   }
   loadUsers(): void {
     this.authService.getUsers().subscribe(
@@ -60,24 +63,63 @@ export class GroupComponent implements OnInit {
         console.error('Error loading users:', error);
       }
     );
-  }
-
-  loadNotifications(): void {
-    this.groupService.getNotifications().subscribe(
-      (notifications) => {
-        this.notifications = notifications;
+    this.authService.getUsers().subscribe(
+      (data) => {
+        // Filter users to include only those with the role 'User'
+        this.activeUsers = data.filter((user) => user.roles.includes('User'));
+        console.log('Active users:', this.activeUsers);
       },
       (error) => {
-        console.error('Error loading notifications:', error);
+        console.error('Error loading users:', error);
       }
     );
   }
 
   // Method to load groups and update the view
   loadGroups(): void {
-    this.groupService.getAllGroups().subscribe((groups) => {
-      this.groups = groups;
-    });
+    if (this.currentUser) {
+      this.groupService.getAllGroups().subscribe((groups) => {
+        // Filter groups where the current user is in the userIds and has the role of "Group Admin"
+        this.groups = groups.filter(
+          (group) =>
+            group.userIds.includes(this.currentUser!.id) &&
+            this.currentUser!.roles.includes('Group Admin')
+        );
+        console.log(this.groups);
+      });
+    }
+  }
+
+  loadGroupsAndNotifications(): void {
+    if (this.currentUser) {
+      this.groupService
+        .getAllGroups()
+        .pipe(
+          map((groups) => {
+            // Filter groups where the current user is in the userIds and has the role of "Group Admin"
+            this.groups = groups.filter(
+              (group) =>
+                group.userIds.includes(this.currentUser!.id) &&
+                this.currentUser!.roles.includes('Group Admin')
+            );
+            console.log('Filtered groups:', this.groups);
+            return this.groups;
+          }),
+          switchMap(() => this.groupService.getNotifications()) // switchMap waits for the first observable to complete
+        )
+        .subscribe(
+          (notifications) => {
+            // Filter notifications to only include those with a groupId present in this.groups
+            this.notifications = notifications.filter((notification) =>
+              this.groups.some((group) => group.id === notification.groupId)
+            );
+            console.log('Filtered notifications:', this.notifications);
+          },
+          (error) => {
+            console.error('Error loading notifications:', error);
+          }
+        );
+    }
   }
 
   onApprove(notification: any, index: number): void {
@@ -100,8 +142,9 @@ export class GroupComponent implements OnInit {
   }
 
   onCreateGroup(): void {
+    const currentUser = this.authService.getCurrentUser();
     if (this.groupName.trim()) {
-      this.groupService.createGroup(this.groupName);
+      this.groupService.createGroup(this.groupName, currentUser.id);
       this.groupName = '';
       this.loadGroups();
     } else {
@@ -134,10 +177,17 @@ export class GroupComponent implements OnInit {
     this.loadGroups(); // Reload groups to reflect the removal
   }
 
-  onBanUserFromChannel(groupId: number, channelId: number): void {
-    const userId = 1; // Example: assuming user ID 1 is to be banned
-    alert(`User ${userId} has been banned from channel ${channelId}.`);
+  removeUser(userId: number): void {
+    this.authService.removeUser(userId).subscribe(() => {
+      this.loadUsers(); // Refresh user list after removal
+    });
+
+    // Send notification to the Super Admin
+    this.groupService.sendUserRemovalNotification(userId).subscribe(() => {
+      console.log('Notification sent to Super Admin.');
+    });
   }
+
   logout(): void {
     try {
       this.authService.logout().subscribe(

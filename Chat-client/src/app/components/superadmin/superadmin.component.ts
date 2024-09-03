@@ -79,6 +79,7 @@ export class SuperAdminComponent implements OnInit {
       }
     );
   }
+
   onApprove(notification: any, index: number): void {
     this.groupService
       .approveJoinRequest(notification.groupId, notification.userId)
@@ -113,6 +114,7 @@ export class SuperAdminComponent implements OnInit {
   loadGroups(): void {
     this.groupService.getAllGroups().subscribe((groups) => {
       this.groups = groups;
+      console.log(groups);
     });
   }
 
@@ -161,8 +163,10 @@ export class SuperAdminComponent implements OnInit {
   }
 
   onCreateGroup(): void {
+    const currentUser = this.authService.getCurrentUser();
+
     if (this.groupName.trim()) {
-      this.groupService.createGroup(this.groupName);
+      this.groupService.createGroup(this.groupName, currentUser.id);
       this.groupName = '';
       this.loadGroups();
     } else {
