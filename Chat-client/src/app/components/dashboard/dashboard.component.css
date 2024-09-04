@@ -134,6 +134,7 @@ button[disabled] {
 /* Specific button styling */
 .leave-group-btn {
   background-color: #ffc107;
+  margin-left: 530px;
 }
 
 .leave-group-btn:hover {

@@ -137,10 +137,30 @@ export class DashboardComponent implements OnInit {
       }
     );
   }
+  loadDateandTime(): string {
+    let currentdate = new Date();
+    let dateandtime =
+      '@' +
+      currentdate.getDate() +
+      '/' +
+      (currentdate.getMonth() + 1) +
+      '/' +
+      currentdate.getFullYear() +
+      ' ' +
+      currentdate.getHours() +
+      ':' +
+      currentdate.getMinutes() +
+      ':' +
+      currentdate.getSeconds();
+    return dateandtime;
+  }
 
   sendMessage(): void {
     if (this.message.trim() && this.selectedChannel) {
-      this.chatService.sendMessage(this.message, this.selectedChannel);
+      this.chatService.sendMessage(
+        this.message + ' ' + this.loadDateandTime(),
+        this.selectedChannel
+      );
       this.message = '';
     } else {
       alert('Please select a channel to send messages.');
