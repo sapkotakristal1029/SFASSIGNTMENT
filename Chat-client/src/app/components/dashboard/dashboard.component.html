@@ -1,24 +1,45 @@
 <div class="dashboard-container">
-  <h2>Dashboard</h2>
+  <h2>USER DASHBOARD</h2>
 
-  <!-- All Groups Section -->
-  <div>
-    <h3>All Groups</h3>
-    <ul *ngIf="allGroups.length > 0">
-      <li *ngFor="let group of allGroups" class="group-item">
-        <div class="group-content">
-          {{ group.name }}
-          <button
-            class="action-btn"
-            (click)="sendJoinRequest(group.id)"
-            [disabled]="isGroupInUserGroups(group.id)"
-          >
-            Send Join Request
-          </button>
-        </div>
-      </li>
-    </ul>
-    <div *ngIf="allGroups.length === 0">No groups available.</div>
+  <!-- Flexbox container for All Groups and User Actions -->
+  <div class="sections-container">
+    <!-- All Groups Section -->
+    <div class="section group-list">
+      <h3>All Groups</h3>
+      <ul *ngIf="allGroups.length > 0">
+        <li *ngFor="let group of allGroups" class="group-item">
+          <div class="group-content">
+            {{ group.name }}
+            <button
+              class="action-btn"
+              (click)="sendJoinRequest(group.id)"
+              [disabled]="isGroupInUserGroups(group.id)"
+            >
+              Send Join Request
+            </button>
+          </div>
+        </li>
+      </ul>
+      <div *ngIf="allGroups.length === 0">No groups available.</div>
+    </div>
+
+    <!-- User Actions Section -->
+    <div class="section user-actions">
+      <h3>User Actions</h3>
+      <div *ngIf="currentUser" class="user-info">
+        <p><strong>ID:</strong> {{ currentUser.id }}</p>
+        <p><strong>Username:</strong> {{ currentUser.username }}</p>
+        <p><strong>Password:</strong> {{ currentUser.password }}</p>
+        <p><strong>Roles:</strong> {{ currentUser.roles.join(", ") }}</p>
+      </div>
+
+      <div class="action-buttons">
+        <button class="action-btn logout-btn" (click)="logout()">Logout</button>
+        <button class="action-btn delete-account-btn" (click)="deleteAccount()">
+          Delete Account
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- Your Groups Section -->
@@ -32,14 +53,14 @@
           (click)="selectGroup(group.id)"
         >
           Group{{ group.id }}: {{ group.name }}
-        </div>
-        <ul *ngIf="selectedGroup === group.id">
           <button
             class="action-btn leave-group-btn"
             (click)="leaveGroup(group.id)"
           >
             Leave Group
           </button>
+        </div>
+        <ul *ngIf="selectedGroup === group.id">
           <li
             *ngFor="let channel of group.channels"
             class="channel-item"
@@ -68,21 +89,5 @@
       placeholder="Type your message here..."
     />
     <button class="action-btn send-btn" (click)="sendMessage()">Send</button>
-  </div>
-
-  <!-- User Actions -->
-  <h2>User Actions</h2>
-  <div *ngIf="currentUser" class="user-info">
-    <p><strong>ID:</strong> {{ currentUser.id }}</p>
-    <p><strong>Username:</strong> {{ currentUser.username }}</p>
-    <p><strong>Password:</strong> {{ currentUser.password }}</p>
-    <p><strong>Roles:</strong> {{ currentUser.roles.join(", ") }}</p>
-  </div>
-
-  <div class="action-buttons">
-    <button class="action-btn logout-btn" (click)="logout()">Logout</button>
-    <button class="action-btn delete-account-btn" (click)="deleteAccount()">
-      Delete Account
-    </button>
   </div>
 </div>

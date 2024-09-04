@@ -1,65 +1,59 @@
-/* General Styles */
-body {
-  font-family: "Arial", sans-serif;
-}
-
+/* General container styling */
 .group-management-container {
-  max-width: 1000px;
-  margin: 20px auto;
-  padding: 20px;
-  background-color: #f8f9fa;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 30px;
+  background-color: #f7f7f7;
+  border-radius: 12px;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
-h2,
+/* Headings */
+h2 {
+  color: #007bff;
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 2rem;
+}
+
 h3 {
   color: #333;
   text-align: center;
+  margin-bottom: 20px;
+  font-size: 1.5rem;
 }
 
-/* Notification List */
-ul {
-  list-style: none;
-  padding: 0;
+/* Flexbox for side-by-side layout */
+.sections-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
 }
 
-li {
+/* Adjusting the width of each section */
+.section {
+  flex: 1;
+}
+
+/* Create group and channel section */
+.create-section {
   background-color: #fff;
-  margin-bottom: 10px;
-  padding: 10px;
-  border-radius: 5px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-button {
-  padding: 8px 16px;
-  margin-left: 10px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-button:hover {
-  background-color: #0056b3;
-}
-
-button[disabled] {
-  background-color: #6c757d;
-  cursor: not-allowed;
-}
-
-/* Input Form Styling */
-form {
-  margin-top: 20px;
-  background-color: #e9ecef;
   padding: 15px;
-  border-radius: 5px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
+/* Notifications section */
+.notifications-section {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+/* Group and channel input styles */
 label {
   display: block;
   margin-bottom: 5px;
@@ -67,66 +61,110 @@ label {
 
 input,
 select {
-  width: 100%;
+  width: 90%;
   padding: 8px;
   margin-bottom: 10px;
   border-radius: 4px;
   border: 1px solid #ccc;
 }
 
-/* Group and Channel Lists */
-.group-name,
-.channel-name {
-  font-weight: bold;
-}
-
-.remove-button {
-  background-color: #dc3545;
-  margin-left: 10px;
-}
-
-.remove-button:hover {
-  background-color: #c82333;
-}
-
-/* User Actions Section */
+/* User action section styling */
 .user-actions {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.user-info p {
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+}
+
+.action-buttons {
   margin-top: 20px;
-  background-color: #e9ecef;
-  padding: 10px;
-  border-radius: 5px;
 }
 
-/* Logout and Delete Account Buttons */
-.logout-button,
-.delete-account-button {
+.action-btn {
+  padding: 12px 20px;
+  margin-top: 5px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  color: #fff;
   background-color: #28a745;
+  cursor: pointer;
+  transition: background-color 0.3s;
 }
 
-.logout-button:hover,
-.delete-account-button:hover {
+.action-btn:hover {
   background-color: #218838;
 }
 
-.delete-account-button {
+button[disabled] {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+
+/* Specific button styling */
+.remove-btn {
   background-color: #dc3545;
 }
 
-.delete-account-button:hover {
+.remove-btn:hover {
   background-color: #c82333;
 }
 
+.logout-btn {
+  background-color: #dc3545;
+}
+
+.logout-btn:hover {
+  background-color: #c82333;
+}
+
+.delete-account-btn {
+  background-color: #343a40;
+}
+
+.delete-account-btn:hover {
+  background-color: #23272b;
+}
+/* Ensures group and channel names are aligned to the left and keep normal indentation */
+.allgroups ul {
+  list-style-type: disc; /* Keep the default bullet points for list items */
+  padding-left: 40px; /* This is the default padding for ul, can be adjusted if needed */
+}
+
+.allgroups .group-name,
+.allgroups .channel-name {
+  display: block;
+  text-align: left; /* Align the text to the left */
+  margin-bottom: 5px;
+}
+
+.allgroups .channel-name {
+  margin-left: 20px; /* Indent the channels relative to the groups */
+}
+
+.allgroups .group-name {
+  font-weight: bold; /* Keep group names bold for emphasis */
+}
+
+/* Buttons */
+.action-btn {
+  margin-left: 10px; /* Give some space between the name and button */
+}
+
+/* Responsive design */
 @media (max-width: 768px) {
-  .group-management-container {
-    padding: 10px;
+  .sections-container {
+    flex-direction: column;
   }
 
-  button {
-    padding: 6px 12px;
-  }
-
-  input,
-  select {
-    padding: 6px;
+  .section {
+    width: 100%;
+    margin-bottom: 20px;
   }
 }

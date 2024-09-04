@@ -2,7 +2,7 @@
   <h2>Super Admin Dashboard</h2>
 
   <!-- Recent Notifications Section -->
-  <div>
+  <div class="section notifications-section">
     <h3>Recent Notifications</h3>
     <ul *ngIf="notifications.length > 0">
       <li *ngFor="let notification of notifications; let i = index">
@@ -20,40 +20,60 @@
     <div *ngIf="notifications.length === 0">No notifications available.</div>
   </div>
 
-  <!-- List of Users -->
-  <div>
-    <h3>Manage Users</h3>
-    <ul>
-      <li *ngFor="let user of users">
-        {{ user.username }} - Roles: {{ user.roles.join(", ") }}
-        <button
-          class="action-button"
-          (click)="promoteToGroupAdmin(user.id)"
-          *ngIf="!user.roles.includes('Group Admin')"
-        >
-          Promote to Group Admin
+  <!-- Flexbox layout for User Management and User Actions -->
+  <div class="user-management-container">
+    <!-- List of Users -->
+    <div class="manage-users-section">
+      <h3>Manage Users</h3>
+      <ul>
+        <li *ngFor="let user of users">
+          {{ user.username }} - Roles: {{ user.roles.join(", ") }}
+          <button
+            class="action-button"
+            (click)="promoteToGroupAdmin(user.id)"
+            *ngIf="!user.roles.includes('Group Admin')"
+          >
+            Group Admin
+          </button>
+          <button
+            class="action-button"
+            (click)="upgradeToSuperAdmin(user.id)"
+            *ngIf="!user.roles.includes('Super Admin')"
+          >
+            Super Admin
+          </button>
+          <button class="remove-button" (click)="removeUser(user.id)">
+            Remove User
+          </button>
+        </li>
+      </ul>
+    </div>
+
+    <!-- User Actions Section -->
+    <div class="user-actions-section">
+      <h3>User Actions</h3>
+      <div *ngIf="currentUser" class="user-info">
+        <p><strong>ID:</strong> {{ currentUser.id }}</p>
+        <p><strong>Username:</strong> {{ currentUser.username }}</p>
+        <p><strong>Password:</strong> {{ currentUser.password }}</p>
+        <p><strong>Roles:</strong> {{ currentUser.roles.join(", ") }}</p>
+      </div>
+
+      <div class="action-buttons">
+        <button class="action-btn logout-btn" (click)="logout()">Logout</button>
+        <button class="action-btn delete-account-btn" (click)="deleteAccount()">
+          Delete Account
         </button>
-        <button
-          class="action-button"
-          (click)="upgradeToSuperAdmin(user.id)"
-          *ngIf="!user.roles.includes('Super Admin')"
-        >
-          Upgrade to Super Admin
-        </button>
-        <button class="remove-button" (click)="removeUser(user.id)">
-          Remove User
-        </button>
-      </li>
-    </ul>
+      </div>
+    </div>
   </div>
 
-  <!-- Toggle Button -->
+  <!-- Group Management Sections -->
   <button class="toggle-button" (click)="toggleGroupManagement()">
     {{ showGroupManagement ? "Hide" : "Show" }} Group Management
   </button>
 
-  <!-- Group Management Sections -->
-  <div *ngIf="showGroupManagement">
+  <div *ngIf="showGroupManagement" class="user-actions">
     <div>
       <h3>Create Group</h3>
       <form (ngSubmit)="onCreateGroup()">
@@ -98,7 +118,8 @@
       </form>
     </div>
 
-    <div>
+    <div class="section user-actions allgroups">
+      <h3>All Groups and Channels</h3>
       <ul *ngIf="groups.length > 0">
         <li *ngFor="let group of groups">
           {{ group.name }}
@@ -120,21 +141,6 @@
       </ul>
       <div *ngIf="groups.length === 0">No groups created yet.</div>
     </div>
-  </div>
-
-  <h2>User Actions</h2>
-  <div *ngIf="currentUser" class="user-actions">
-    <p><strong>ID:</strong> {{ currentUser.id }}</p>
-    <p><strong>Username:</strong> {{ currentUser.username }}</p>
-    <p><strong>Password:</strong> {{ currentUser.password }}</p>
-    <p><strong>Roles:</strong> {{ currentUser.roles.join(", ") }}</p>
-  </div>
-
-  <div class="user-actions">
-    <button class="logout-button" (click)="logout()">Logout</button>
-    <button class="delete-account-button" (click)="deleteAccount()">
-      Delete Account
-    </button>
   </div>
 
   <button class="toggle-button" (click)="toggleRegister()">

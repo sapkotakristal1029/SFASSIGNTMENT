@@ -16,23 +16,127 @@ h3 {
   margin-bottom: 20px;
 }
 
-/* Notification and User Lists */
-ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+/* Flexbox layout for User Management and User Actions */
+.user-management-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 20px;
 }
 
-li {
+/* Manage Users Section */
+.manage-users-section {
+  flex: 2;
   background-color: #fff;
-  margin-bottom: 10px;
   padding: 15px;
-  border-radius: 6px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+.user-actions {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
 }
 
-li button {
-  margin-left: 10px;
+/* User Actions Section */
+.user-actions-section {
+  flex: 1;
+  background-color: #fff;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+/* Ensures group and channel names are aligned to the left and keep normal indentation */
+.allgroups ul {
+  list-style-type: none;
+  padding-left: 40px;
+}
+
+.allgroups .group-name,
+.allgroups .channel-name {
+  display: block;
+  text-align: left; /* Align the text to the left */
+  margin-bottom: 5px;
+}
+
+.allgroups .channel-name {
+  margin-left: 20px; /* Indent the channels relative to the groups */
+}
+
+.allgroups .group-name {
+  font-weight: bold; /* Keep group names bold for emphasis */
+}
+
+.user-info p {
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+}
+
+.action-buttons {
+  margin-top: 20px;
+}
+.action-buttons {
+  margin-top: 20px;
+}
+.section {
+  flex: 1;
+}
+/* Notifications section */
+.notifications-section {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.action-btn {
+  padding: 12px 20px;
+  margin-top: 5px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  color: #fff;
+  background-color: #28a745;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.action-btn:hover {
+  background-color: #218838;
+}
+
+button[disabled] {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+.remove-btn {
+  background-color: #dc3545;
+}
+
+.remove-btn:hover {
+  background-color: #c82333;
+}
+
+.logout-btn {
+  background-color: #dc3545;
+}
+
+.logout-btn:hover {
+  background-color: #c82333;
+}
+
+.delete-account-btn {
+  background-color: #343a40;
+  margin-left: 20px;
+}
+
+.delete-account-btn:hover {
+  background-color: #23272b;
 }
 
 /* Button Styling */
@@ -58,10 +162,12 @@ button[disabled] {
 
 .action-button {
   background-color: #007bff;
+  margin-left: 20px;
 }
 
 .remove-button {
   background-color: #dc3545;
+  margin-left: 20px;
 }
 
 .remove-button:hover {
@@ -72,6 +178,7 @@ button[disabled] {
 .toggle-button {
   background-color: #28a745;
   margin-bottom: 20px;
+  margin-left: 50px;
 }
 
 .toggle-button:hover {
@@ -95,7 +202,7 @@ label {
 
 input,
 select {
-  width: 100%;
+  width: 90%;
   padding: 10px;
   margin-bottom: 10px;
   border-radius: 4px;
@@ -109,35 +216,16 @@ select:focus {
   outline: none;
 }
 
-/* User Actions Section */
-.user-actions {
-  margin-top: 20px;
-  padding: 15px;
-  background-color: #f1f3f5;
-  border-radius: 5px;
-}
-
-/* Logout and Delete Account Buttons */
-.logout-button {
-  background-color: #dc3545;
-}
-
-.logout-button:hover {
-  background-color: #c82333;
-}
-
-.delete-account-button {
-  background-color: #343a40;
-}
-
-.delete-account-button:hover {
-  background-color: #23272b;
-}
-
 /* Responsive Design */
 @media (max-width: 768px) {
-  .super-admin-container {
-    padding: 15px;
+  .user-management-container {
+    flex-direction: column;
+  }
+
+  .manage-users-section,
+  .user-actions-section {
+    width: 100%;
+    margin-bottom: 20px;
   }
 
   button {

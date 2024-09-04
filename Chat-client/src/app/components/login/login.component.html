@@ -21,37 +21,42 @@
 
     <button class="login-btn" (click)="onLogin()">Login</button>
   </form>
-
-  <h2>Register</h2>
-  <form>
-    <label for="regUsername">Username:</label>
-    <input
-      type="text"
-      id="regUsername"
-      [(ngModel)]="regUsername"
-      name="regUsername"
-      required
-    />
-
-    <label for="regEmail">Email:</label>
-    <input
-      type="email"
-      id="regEmail"
-      [(ngModel)]="regEmail"
-      name="regEmail"
-      required
-    />
-
-    <label for="regPassword">Password:</label>
-    <input
-      type="password"
-      id="regPassword"
-      [(ngModel)]="regPassword"
-      name="regPassword"
-      required
-    />
-
-    <button class="register-btn" (click)="onRegister()">Register</button>
-  </form>
   <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
+  <p class="register-text">Don't have an account? Register below</p>
+  <button class="toggle-btn" (click)="onToggleRegistration()">
+    {{ showRegistration ? "Hide Register" : "Register Now" }}
+  </button>
+
+  <div *ngIf="showRegistration">
+    <form>
+      <label for="regUsername">Username:</label>
+      <input
+        type="text"
+        id="regUsername"
+        [(ngModel)]="regUsername"
+        name="regUsername"
+        required
+      />
+
+      <label for="regEmail">Email:</label>
+      <input
+        type="email"
+        id="regEmail"
+        [(ngModel)]="regEmail"
+        name="regEmail"
+        required
+      />
+
+      <label for="regPassword">Password:</label>
+      <input
+        type="password"
+        id="regPassword"
+        [(ngModel)]="regPassword"
+        name="regPassword"
+        required
+      />
+
+      <button class="register-btn" (click)="onRegister()">Register</button>
+    </form>
+  </div>
 </div>

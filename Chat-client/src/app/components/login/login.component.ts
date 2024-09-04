@@ -19,6 +19,7 @@ export class LoginComponent {
   regEmail: string = ''; // Registration Email
   regPassword: string = ''; // Registration Password
   errorMessage: string = '';
+  showRegistration: boolean = false; // Toggle for registration form
 
   constructor(private authService: AuthService, private router: Router) {}
 
@@ -61,6 +62,9 @@ export class LoginComponent {
         this.errorMessage = error.message;
       },
     });
+  }
+  onToggleRegistration() {
+    this.showRegistration = !this.showRegistration; // Toggle the form visibility
   }
 
   clearRegistrationForm() {

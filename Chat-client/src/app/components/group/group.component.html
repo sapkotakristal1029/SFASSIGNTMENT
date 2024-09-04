@@ -2,15 +2,15 @@
   <h2>Group Management</h2>
 
   <!-- Recent Notifications Section -->
-  <div>
+  <div class="section notifications-section">
     <h3>Recent Notifications</h3>
     <ul *ngIf="notifications.length > 0">
       <li *ngFor="let notification of notifications; let i = index">
         {{ notification.message }}
-        <button class="action-button" (click)="onApprove(notification, i)">
+        <button class="action-btn" (click)="onApprove(notification, i)">
           Approve
         </button>
-        <button class="action-button remove-button" (click)="onDelete(i)">
+        <button class="action-btn remove-btn" (click)="onDelete(i)">
           Delete
         </button>
       </li>
@@ -18,11 +18,12 @@
     <div *ngIf="notifications.length === 0">No notifications available.</div>
   </div>
 
-  <!-- Create Group -->
-  <div>
-    <h3>Create Group</h3>
-    <form (ngSubmit)="onCreateGroup()">
-      <div>
+  <!-- Flexbox container for Create Sections and User Actions -->
+  <div class="sections-container">
+    <!-- Create Group and Create Channel Section -->
+    <div class="section create-section">
+      <h3>Create Group</h3>
+      <form (ngSubmit)="onCreateGroup()">
         <label for="groupName">Group Name:</label>
         <input
           type="text"
@@ -30,16 +31,11 @@
           [(ngModel)]="groupName"
           name="groupName"
         />
-      </div>
-      <button type="submit" class="action-button">Create Group</button>
-    </form>
-  </div>
+        <button type="submit" class="action-btn">Create Group</button>
+      </form>
 
-  <!-- Create Channel -->
-  <div>
-    <h3>Create Channel</h3>
-    <form (ngSubmit)="onCreateChannel()">
-      <div>
+      <h3>Create Channel</h3>
+      <form (ngSubmit)="onCreateChannel()">
         <label for="channelName">Channel Name:</label>
         <input
           type="text"
@@ -47,8 +43,6 @@
           [(ngModel)]="channelName"
           name="channelName"
         />
-      </div>
-      <div>
         <label for="groupSelect">Select Group:</label>
         <select
           id="groupSelect"
@@ -59,69 +53,57 @@
             {{ group.name }}
           </option>
         </select>
+        <button type="submit" class="action-btn">Create Channel</button>
+      </form>
+    </div>
+
+    <!-- User Actions Section -->
+    <div class="section user-actions">
+      <h3>User Actions</h3>
+      <div *ngIf="currentUser" class="user-info">
+        <p><strong>ID:</strong> {{ currentUser.id }}</p>
+        <p><strong>Username:</strong> {{ currentUser.username }}</p>
+        <p><strong>Password:</strong> {{ currentUser.password }}</p>
+        <p><strong>Roles:</strong> {{ currentUser.roles.join(", ") }}</p>
       </div>
-      <button type="submit" class="action-button">Create Channel</button>
-    </form>
+      <div class="action-buttons">
+        <button class="action-btn logout-btn" (click)="logout()">Logout</button>
+        <button class="action-btn delete-account-btn" (click)="deleteAccount()">
+          Delete Account
+        </button>
+      </div>
+    </div>
   </div>
 
-  <!-- List of Groups and Channels -->
-  <div>
+  <!-- List of Groups and Channels with similar styling -->
+  <div class="section user-actions allgroups">
+    <h3>All Groups and Channels</h3>
     <ul *ngIf="groups.length > 0">
       <li *ngFor="let group of groups">
-        <span class="group-name">{{ group.name }}</span>
-        <button
-          class="action-button remove-button"
-          (click)="onRemoveGroup(group.id)"
+        <span class="group-name"
+          >{{ group.name }}
+          <button
+            class="action-btn remove-btn"
+            (click)="onRemoveGroup(group.id)"
+          >
+            Remove Group
+          </button></span
         >
-          Remove Group
-        </button>
         <ul>
           <li *ngFor="let channel of group.channels">
-            <span class="channel-name">{{ channel.name }}</span>
-            <button
-              class="action-button remove-button"
-              (click)="onRemoveChannel(group.id, channel.id)"
+            <span class="channel-name"
+              >{{ channel.name }}
+              <button
+                class="action-btn remove-btn"
+                (click)="onRemoveChannel(group.id, channel.id)"
+              >
+                Remove Channel
+              </button></span
             >
-              Remove Channel
-            </button>
           </li>
         </ul>
       </li>
     </ul>
-  </div>
-  <div *ngIf="groups.length === 0">No groups created yet.</div>
-
-  <!-- List of Users -->
-  <div>
-    <h3>Manage Users</h3>
-    <ul>
-      <li *ngFor="let user of activeUsers">
-        {{ user.username }} - Roles: {{ user.roles.join(", ") }}
-
-        <button class="remove-button" (click)="removeUser(user.id)">
-          Ban user
-        </button>
-      </li>
-    </ul>
-  </div>
-
-  <h2>User Actions</h2>
-  <div *ngIf="currentUser" class="user-actions">
-    <p><strong>ID:</strong> {{ currentUser.id }}</p>
-    <p><strong>Username:</strong> {{ currentUser.username }}</p>
-    <p><strong>Password:</strong> {{ currentUser.password }}</p>
-    <p><strong>Roles:</strong> {{ currentUser.roles.join(", ") }}</p>
-  </div>
-
-  <div class="user-actions">
-    <button class="action-button logout-button" (click)="logout()">
-      Logout
-    </button>
-    <button
-      class="action-button delete-account-button"
-      (click)="deleteAccount()"
-    >
-      Delete Account
-    </button>
+    <div *ngIf="groups.length === 0">No groups created yet.</div>
   </div>
 </div>
