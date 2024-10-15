@@ -12,8 +12,8 @@
             {{ group.name }}
             <button
               class="action-btn"
-              (click)="sendJoinRequest(group.id)"
-              [disabled]="isGroupInUserGroups(group.id)"
+              (click)="sendJoinRequest(group._id)"
+              [disabled]="isGroupInUserGroups(group._id)"
             >
               Send Join Request
             </button>
@@ -49,25 +49,25 @@
       <li *ngFor="let group of userGroups">
         <div
           class="group-item"
-          [ngClass]="{ 'selected-group': selectedGroup === group.id }"
-          (click)="selectGroup(group.id)"
+          [ngClass]="{ 'selected-group': selectedGroup === group._id }"
+          (click)="selectGroup(group._id)"
         >
-          Group{{ group.id }}: {{ group.name }}
+          Group{{ group._id }}: {{ group.name }}
           <button
             class="action-btn leave-group-btn"
-            (click)="leaveGroup(group.id)"
+            (click)="leaveGroup(group._id)"
           >
             Leave Group
           </button>
         </div>
-        <ul *ngIf="selectedGroup === group.id">
+        <ul *ngIf="selectedGroup === group._id">
           <li
             *ngFor="let channel of group.channels"
             class="channel-item"
-            [ngClass]="{ 'selected-channel': selectedChannel === channel.id }"
-            (click)="selectChannel(channel.id)"
+            [ngClass]="{ 'selected-channel': selectedChannel === channel._id }"
+            (click)="selectChannel(channel._id)"
           >
-            Channel{{ channel.id }}: {{ channel.name }}
+            Channel{{ channel._id }}: {{ channel.name }}
           </li>
         </ul>
       </li>
@@ -77,10 +77,11 @@
 
   <!-- Chat Functionality -->
   <h2 *ngIf="selectedChannel">Chat</h2>
+  {{ selectedChannel }}
   <div *ngIf="selectedChannel" class="chat-container">
     <div class="messages">
-      <div *ngFor="let msg of messages" class="message-item">
-        <p>{{ msg }}</p>
+      <div *ngFor="let msg of messages()" class="message-item">
+        <p>{{ msg.text }} {{ msg.createdAt }}</p>
       </div>
     </div>
     <input

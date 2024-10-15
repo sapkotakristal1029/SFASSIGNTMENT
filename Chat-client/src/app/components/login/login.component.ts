@@ -26,7 +26,7 @@ export class LoginComponent {
   onLogin() {
     this.authService.login(this.username, this.password).subscribe({
       next: (response: any) => {
-        const user = response.user;
+        const user = response;
 
         // Store the authenticated user in localStorage
         localStorage.setItem('currentUser', JSON.stringify(user));
@@ -36,10 +36,12 @@ export class LoginComponent {
           console.log('hi');
           this.router.navigate(['/group']);
         } else {
+          alert('Login successful');
           this.router.navigate(['/dashboard']);
         }
       },
       error: (error) => {
+        console.error('Login failed:', error);
         this.errorMessage = 'Invalid username or password';
       },
     });

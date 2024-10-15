@@ -6,8 +6,9 @@
     <h3>Recent Notifications</h3>
     <ul *ngIf="notifications.length > 0">
       <li *ngFor="let notification of notifications; let i = index">
-        {{ notification.message }}
-        <button class="action-btn" (click)="onApprove(notification, i)">
+        {{ notification.user.email }} want to join
+        {{ notification.group.name }}.
+        <button class="action-btn" (click)="onApprove(notification._id)">
           Approve
         </button>
         <button class="action-btn remove-btn" (click)="onDelete(i)">
@@ -49,7 +50,7 @@
           [(ngModel)]="selectedGroupId"
           name="selectedGroupId"
         >
-          <option *ngFor="let group of groups" [value]="group.id">
+          <option *ngFor="let group of groups" [value]="group._id">
             {{ group.name }}
           </option>
         </select>
@@ -61,7 +62,7 @@
     <div class="section user-actions">
       <h3>User Actions</h3>
       <div *ngIf="currentUser" class="user-info">
-        <p><strong>ID:</strong> {{ currentUser.id }}</p>
+        <p><strong>ID:</strong> {{ currentUser._id }}</p>
         <p><strong>Username:</strong> {{ currentUser.username }}</p>
         <p><strong>Password:</strong> {{ currentUser.password }}</p>
         <p><strong>Roles:</strong> {{ currentUser.roles.join(", ") }}</p>
@@ -84,7 +85,7 @@
           >{{ group.name }}
           <button
             class="action-btn remove-btn"
-            (click)="onRemoveGroup(group.id)"
+            (click)="onRemoveGroup(group._id)"
           >
             Remove Group
           </button></span
@@ -95,7 +96,7 @@
               >{{ channel.name }}
               <button
                 class="action-btn remove-btn"
-                (click)="onRemoveChannel(group.id, channel.id)"
+                (click)="onRemoveChannel(channel._id)"
               >
                 Remove Channel
               </button></span

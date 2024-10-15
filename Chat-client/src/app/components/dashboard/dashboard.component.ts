@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { GroupService } from '../../services/group.service';
 import { ChatService } from '../../services/chat.service';
@@ -6,7 +6,9 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { localStorageService } from '../../services/localStorage.service';
 import { Subscription } from 'rxjs';
+import { Signal } from '@angular/core';
 
 @Component({
   selector: 'app-dashboard',
@@ -16,11 +18,11 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./dashboard.component.css'],
 })
 export class DashboardComponent implements OnInit {
-  allGroups: { id: number; name: string }[] = [];
+  allGroups: { _id: string; name: string }[] = [];
   userGroups: {
-    id: number;
+    _id: string;
     name: string;
-    channels: { id: number; name: string }[];
+    channels: { _id: string; name: string }[];
   }[] = [];
 
   currentUser: {
@@ -34,18 +36,19 @@ export class DashboardComponent implements OnInit {
   users: any[] = [];
 
   message: string = '';
-  messages: string[] = [];
+  messages = signal<any[]>([]);
 
   groupName: string = ''; // Added this variable to hold the group name for registering interest
 
-  selectedGroup: number | null = null;
-  selectedChannel: number | null = null;
+  selectedGroup: string | null = null;
+  selectedChannel: string | null = null;
   messageSubscription: Subscription | null = null;
 
   constructor(
     private authService: AuthService,
     private groupService: GroupService,
     private chatService: ChatService,
+    private localStorageService: localStorageService,
     private router: Router
   ) {}
 
@@ -53,7 +56,6 @@ export class DashboardComponent implements OnInit {
     const currentUser = this.authService.getCurrentUser();
     if (!currentUser) {
       this.router.navigate(['/login']);
-      return;
     }
 
     this.currentUser = currentUser;
@@ -62,6 +64,10 @@ export class DashboardComponent implements OnInit {
     this.loadAllGroups();
     this.loadUserGroups();
     this.loadUsers();
+
+    this.chatService.revicedMessage().subscribe((message) => {
+      this.messages.set([...this.messages(), message]);
+    });
   }
 
   loadUsers(): void {
@@ -96,41 +102,37 @@ export class DashboardComponent implements OnInit {
       }
     );
   }
-  isGroupInUserGroups(groupId: number): boolean {
-    return this.userGroups.some((group) => group.id === groupId);
+  isGroupInUserGroups(groupId: string): boolean {
+    return this.userGroups.some((group) => group._id === groupId);
   }
 
-  sendJoinRequest(groupId: number): void {
-    this.groupService.sendJoinRequest(groupId).subscribe(
-      (response) => {
-        alert(response.message);
-      },
-      (error) => {
-        console.error('Error sending join request:', error);
-      }
-    );
+  sendJoinRequest(groupId: string): void {
+    const user = this.localStorageService.getCurrentUser();
+    this.groupService.sendJoinRequest(groupId, user._id);
   }
 
-  selectGroup(groupId: number): void {
+  selectGroup(groupId: string): void {
     if (this.selectedGroup !== groupId) {
       this.selectedGroup = groupId;
       this.selectedChannel = null; // Reset selected channel when group changes
     }
   }
 
-  selectChannel(channelId: number): void {
+  selectChannel(channelId: string): void {
     this.selectedChannel = channelId;
     if (this.messageSubscription) {
       this.messageSubscription.unsubscribe(); // Unsubscribe from previous channel messages
     }
-    this.messages = []; // Clear previous messages
+    this.messages.set([]); // Clear previous messages
     this.subscribeToMessages(channelId); // Subscribe to new channel messages
   }
 
-  subscribeToMessages(channelId: number): void {
+  subscribeToMessages(channelId: string): void {
+    this.chatService.joinChannel(channelId);
     this.messageSubscription = this.chatService.getMessage(channelId).subscribe(
       (message) => {
-        this.messages.push(message);
+        console.log('Received message:', message);
+        this.messages.set(message);
       },
       (error) => {
         console.error('Error receiving messages:', error);
@@ -169,15 +171,7 @@ export class DashboardComponent implements OnInit {
 
   logout(): void {
     try {
-      this.authService.logout().subscribe(
-        () => {
-          this.router.navigate(['/login']);
-        },
-        (error) => {
-          console.error('Error logging out:', error);
-          alert('Error logging out');
-        }
-      );
+      this.authService.logout();
     } catch (error) {
       console.error('Unexpected error during logout:', error);
     }
@@ -194,7 +188,7 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  leaveGroup(groupId: number): void {
+  leaveGroup(groupId: string): void {
     try {
       this.groupService.leaveGroup(groupId).subscribe(
         (response) => {
@@ -229,7 +223,7 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  joinChannel(groupId: number, channelId: number): void {
+  joinChannel(groupId: string, channelId: string): void {
     try {
       this.groupService.joinChannel(groupId, channelId).subscribe(
         (response) => {

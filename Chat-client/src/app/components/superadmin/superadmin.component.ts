@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { GroupService } from '../../services/group.service';
 import { Router } from '@angular/router';
+import { localStorageService } from '../../services/localStorage.service';
 
 @Component({
   selector: 'app-super-admin',
@@ -15,7 +16,7 @@ import { Router } from '@angular/router';
 })
 export class SuperAdminComponent implements OnInit {
   users: any[] = []; // To hold the list of users
-  notifications: { message: string; groupId: number; userId: number }[] = [];
+  notifications: { status: string; group: any; user: any; _id: string }[] = [];
 
   username: string = '';
   password: string = '';
@@ -36,10 +37,10 @@ export class SuperAdminComponent implements OnInit {
   channelName: string = '';
   selectedGroupId: number | null = null;
   groups: {
-    id: number;
+    _id: string;
     name: string;
     userIds: [];
-    channels: { id: number; name: string }[];
+    channels: { _id: string; name: string }[];
   }[] = [];
 
   // Add this variable to toggle visibility
@@ -49,6 +50,7 @@ export class SuperAdminComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private groupService: GroupService,
+    private localStorageService: localStorageService,
     private router: Router
   ) {}
 
@@ -80,18 +82,16 @@ export class SuperAdminComponent implements OnInit {
     );
   }
 
-  onApprove(notification: any, index: number): void {
-    this.groupService
-      .approveJoinRequest(notification.groupId, notification.userId)
-      .subscribe(
-        () => {
-          this.notifications.splice(index, 1); // Remove from array in memory
-          this.groupService.deleteNotification(index); // Remove from localStorage
-        },
-        (error) => {
-          console.error('Error approving join request:', error);
-        }
-      );
+  onApprove(notificationId: string): void {
+    this.groupService.approveJoinRequest(notificationId).subscribe({
+      next: (response) => {
+        alert('Join request approved successfully.');
+        this.loadNotifications();
+      },
+      error: (error) => {
+        alert('Error approving join request.');
+      },
+    });
   }
 
   onDelete(index: number): void {
@@ -124,7 +124,7 @@ export class SuperAdminComponent implements OnInit {
     });
   }
 
-  removeUser(userId: number): void {
+  removeUser(userId: string): void {
     this.authService.removeUser(userId).subscribe(() => {
       this.loadUsers(); // Refresh user list after removal
     });
@@ -137,15 +137,7 @@ export class SuperAdminComponent implements OnInit {
   }
   logout(): void {
     try {
-      this.authService.logout().subscribe(
-        () => {
-          this.router.navigate(['/login']);
-        },
-        (error) => {
-          console.error('Error logging out:', error);
-          alert('Error logging out');
-        }
-      );
+      this.authService.logout();
     } catch (error) {
       console.error('Unexpected error during logout:', error);
     }
@@ -163,7 +155,7 @@ export class SuperAdminComponent implements OnInit {
   }
 
   onCreateGroup(): void {
-    const currentUser = this.authService.getCurrentUser();
+    const currentUser = this.localStorageService.getCurrentUser();
 
     if (this.groupName.trim()) {
       this.groupService.createGroup(this.groupName, currentUser.id);
@@ -189,13 +181,13 @@ export class SuperAdminComponent implements OnInit {
     }
   }
 
-  onRemoveGroup(groupId: number): void {
+  onRemoveGroup(groupId: string): void {
     this.groupService.removeGroup(groupId);
     this.loadGroups(); // Reload groups to reflect the removal
   }
 
-  onRemoveChannel(groupId: number, channelId: number): void {
-    this.groupService.removeChannel(groupId, channelId);
+  onRemoveChannel(channelId: string): void {
+    this.groupService.removeChannel(channelId);
     this.loadGroups(); // Reload groups to reflect the removal
   }
 

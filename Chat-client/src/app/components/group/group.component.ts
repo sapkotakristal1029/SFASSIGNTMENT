@@ -6,6 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { map, switchMap } from 'rxjs';
+import { localStorageService } from '../../services/localStorage.service';
 
 @Component({
   selector: 'app-group',
@@ -15,13 +16,14 @@ import { map, switchMap } from 'rxjs';
   styleUrls: ['./group.component.css'],
 })
 export class GroupComponent implements OnInit {
-  notifications: { message: string; groupId: number; userId: number }[] = [];
+  notifications: { status: any; group: any; user: any; _id: string }[] = [];
 
   groupName: string = '';
   channelName: string = '';
-  selectedGroupId: number | null = null;
+  selectedGroupId: string | null = null;
+
   currentUser: {
-    id: number;
+    _id: string;
     username: string;
     password: string;
     roles: string[];
@@ -32,20 +34,22 @@ export class GroupComponent implements OnInit {
   activeUsers: any[] = [];
 
   groups: {
-    id: number;
+    _id: string;
     name: string;
     userIds: [];
-    channels: { id: number; name: string }[];
+    channels: { _id: string; name: string }[];
   }[] = [];
 
   constructor(
     private groupService: GroupService,
     private authService: AuthService,
+    private localStorageService: localStorageService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
-    const currentUser = this.authService.getCurrentUser();
+    const currentUser = this.localStorageService.getCurrentUser();
+    console.log('Current user:', currentUser);
     this.currentUser = currentUser;
 
     if (this.currentUser) {
@@ -53,6 +57,7 @@ export class GroupComponent implements OnInit {
     }
 
     this.loadUsers();
+    this.loadGroups();
   }
   loadUsers(): void {
     this.authService.getUsers().subscribe(
@@ -79,11 +84,12 @@ export class GroupComponent implements OnInit {
   loadGroups(): void {
     if (this.currentUser) {
       this.groupService.getAllGroups().subscribe((groups) => {
+        console.log(groups);
         // Filter groups where the current user is in the userIds and has the role of "Group Admin"
         this.groups = groups.filter(
           (group) =>
-            group.userIds.includes(this.currentUser!.id) &&
-            this.currentUser!.roles.includes('Group Admin')
+            group.admins.includes(this.currentUser?._id) &&
+            this.currentUser?.roles.includes('Group Admin')
         );
         console.log(this.groups);
       });
@@ -99,41 +105,38 @@ export class GroupComponent implements OnInit {
             // Filter groups where the current user is in the userIds and has the role of "Group Admin"
             this.groups = groups.filter(
               (group) =>
-                group.userIds.includes(this.currentUser!.id) &&
+                group._id.includes(this.currentUser?._id) &&
                 this.currentUser!.roles.includes('Group Admin')
             );
             console.log('Filtered groups:', this.groups);
             return this.groups;
-          }),
-          switchMap(() => this.groupService.getNotifications()) // switchMap waits for the first observable to complete
+          })
         )
-        .subscribe(
-          (notifications) => {
-            // Filter notifications to only include those with a groupId present in this.groups
-            this.notifications = notifications.filter((notification) =>
-              this.groups.some((group) => group.id === notification.groupId)
-            );
-            console.log('Filtered notifications:', this.notifications);
-          },
-          (error) => {
-            console.error('Error loading notifications:', error);
-          }
-        );
+        .subscribe();
+
+      this.groupService.getNotifications().subscribe(
+        (notifications) => {
+          // Filter notifications to only include those with a groupId present in this.groups
+          this.notifications = notifications;
+          console.log('Filtered notifications:', this.notifications);
+        },
+        (error) => {
+          console.error('Error loading notifications:', error);
+        }
+      );
     }
   }
 
-  onApprove(notification: any, index: number): void {
-    this.groupService
-      .approveJoinRequest(notification.groupId, notification.userId)
-      .subscribe(
-        () => {
-          this.notifications.splice(index, 1); // Remove from array in memory
-          this.groupService.deleteNotification(index); // Remove from localStorage
-        },
-        (error) => {
-          console.error('Error approving join request:', error);
-        }
-      );
+  onApprove(notificationId: string): void {
+    this.groupService.approveJoinRequest(notificationId).subscribe({
+      next: (response) => {
+        alert('Join request approved!');
+        this.loadGroupsAndNotifications();
+      },
+      error: (error) => {
+        alert('Error approving join request.');
+      },
+    });
   }
 
   onDelete(index: number): void {
@@ -142,11 +145,15 @@ export class GroupComponent implements OnInit {
   }
 
   onCreateGroup(): void {
-    const currentUser = this.authService.getCurrentUser();
+    const currentUser = this.localStorageService.getCurrentUser();
+    console.log('Current user 2:', currentUser);
     if (this.groupName.trim()) {
-      this.groupService.createGroup(this.groupName, currentUser.id);
+      this.groupService.createGroup(
+        this.groupName,
+        currentUser._id,
+        this.loadGroups.bind(this)
+      );
       this.groupName = '';
-      this.loadGroups();
     } else {
       alert('Please enter a valid group name.');
     }
@@ -154,11 +161,15 @@ export class GroupComponent implements OnInit {
 
   onCreateChannel(): void {
     if (this.selectedGroupId) {
+      console.log('Selected group ID:', this.selectedGroupId);
       // Ensure a group is selected
       if (this.channelName.trim()) {
-        this.groupService.createChannel(this.channelName, this.selectedGroupId);
+        this.groupService.createChannel(
+          this.channelName,
+          this.selectedGroupId,
+          this.loadGroups.bind(this)
+        );
         this.channelName = ''; // Clear the input field after creation
-        this.loadGroups(); // Reload the groups to reflect the new channel
       } else {
         alert('Please enter a valid channel name.');
       }
@@ -167,17 +178,15 @@ export class GroupComponent implements OnInit {
     }
   }
 
-  onRemoveGroup(groupId: number): void {
-    this.groupService.removeGroup(groupId);
-    this.loadGroups(); // Reload groups to reflect the removal
+  onRemoveGroup(groupId: string): void {
+    this.groupService.removeGroup(groupId, this.loadGroups.bind(this));
   }
 
-  onRemoveChannel(groupId: number, channelId: number): void {
-    this.groupService.removeChannel(groupId, channelId);
-    this.loadGroups(); // Reload groups to reflect the removal
+  onRemoveChannel(channelId: string): void {
+    this.groupService.removeChannel(channelId, this.loadGroups.bind(this));
   }
 
-  removeUser(userId: number): void {
+  removeUser(userId: string): void {
     this.authService.removeUser(userId).subscribe(() => {
       this.loadUsers(); // Refresh user list after removal
     });
@@ -190,15 +199,7 @@ export class GroupComponent implements OnInit {
 
   logout(): void {
     try {
-      this.authService.logout().subscribe(
-        () => {
-          this.router.navigate(['/login']);
-        },
-        (error) => {
-          console.error('Error logging out:', error);
-          alert('Error logging out');
-        }
-      );
+      this.authService.logout();
     } catch (error) {
       console.error('Unexpected error during logout:', error);
     }

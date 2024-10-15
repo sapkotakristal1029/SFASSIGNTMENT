@@ -1,26 +1,29 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { catchError, Observable, tap, throwError } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:3000';
+  private apiUrl = 'http://localhost:5000/api';
   private currentUser: any = null;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private router: Router) {}
 
   login(username: string, password: string): Observable<any> {
     if (!username || !password) {
       return throwError(() => new Error('Username and password are required.'));
     }
-    return this.http.post(`${this.apiUrl}/login`, { username, password }).pipe(
-      tap((response: any) => {
-        // Store the user data on successful login
-        this.currentUser = response.user;
-      })
-    );
+    return this.http
+      .post(`${this.apiUrl}/users/login`, { username, password })
+      .pipe(
+        tap((response: any) => {
+          // Store the user data on successful login
+          this.currentUser = response;
+        })
+      );
   }
   // Getter method to retrieve the current user
   getCurrentUser(): any {
@@ -33,7 +36,7 @@ export class AuthService {
         () => new Error('Username, password, and email are required.')
       );
     }
-    return this.http.post(`${this.apiUrl}/user`, user).pipe(
+    return this.http.post(`${this.apiUrl}/users`, user).pipe(
       catchError((error: HttpErrorResponse) => {
         // Convert server error to a user-friendly message
         let errorMessage = 'Registration failed. Please try again.';
@@ -57,7 +60,7 @@ export class AuthService {
     return this.http.get<any[]>(`${this.apiUrl}/users`);
   }
 
-  removeUser(userId: number): Observable<any> {
+  removeUser(userId: string): Observable<any> {
     if (!userId) {
       return throwError(() => new Error('User ID is required.'));
     }
@@ -71,9 +74,10 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/user/upgrade`, { userId });
   }
 
-  logout(): Observable<any> {
+  logout() {
     // Here, we simulate a logout by simply returning an observable
-    return this.http.post(`${this.apiUrl}/logout`, {});
+    localStorage.clear();
+    this.router.navigate(['/login']);
   }
 
   deleteAccount(userId: number): Observable<any> {

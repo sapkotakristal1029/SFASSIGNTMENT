@@ -1,234 +1,139 @@
 import { Injectable } from '@angular/core';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
+import { localStorageService } from './localStorage.service';
 
 interface Notification {
   message: string;
-  groupId: number;
-  userId: number;
+  groupId: string;
+  userId: string;
 }
 
 @Injectable({
   providedIn: 'root',
 })
 export class GroupService {
-  private groups: any[] = [];
-  private notifications: Notification[] = []; // Use the Notification interface
+  private apiUrl = 'http://localhost:5000/api';
 
-  constructor() {
-    if (this.isLocalStorageAvailable()) {
-      this.loadGroupsFromStorage();
-      this.loadNotificationsFromStorage();
-    }
-  }
-
-  private isLocalStorageAvailable(): boolean {
-    try {
-      const test = '__test__';
-      localStorage.setItem(test, test);
-      localStorage.removeItem(test);
-      return true;
-    } catch (e) {
-      return false;
-    }
-  }
-  private initCounts() {
-    if (!localStorage.getItem('groupCount')) {
-      localStorage.setItem('groupCount', '0');
-    }
-    if (!localStorage.getItem('channelCount')) {
-      localStorage.setItem('channelCount', '0');
-    }
-  }
-  private getGroupCount(): number {
-    return parseInt(localStorage.getItem('groupCount') || '0', 10);
-  }
-
-  private getChannelCount(): number {
-    return parseInt(localStorage.getItem('channelCount') || '0', 10);
-  }
-  private incrementGroupCount(): void {
-    const count = this.getGroupCount() + 1;
-    localStorage.setItem('groupCount', count.toString());
-  }
-
-  private incrementChannelCount(): void {
-    const count = this.getChannelCount() + 1;
-    localStorage.setItem('channelCount', count.toString());
-  }
-
-  // Load groups from localStorage
-  private loadGroupsFromStorage() {
-    if (this.isLocalStorageAvailable() && localStorage.getItem('groups')) {
-      this.groups = JSON.parse(localStorage.getItem('groups')!);
-    }
-  }
-
-  // Save groups to localStorage
-  private saveGroupsToStorage() {
-    if (this.isLocalStorageAvailable()) {
-      localStorage.setItem('groups', JSON.stringify(this.groups));
-    }
-  }
-
-  // Load notifications from localStorage
-  private loadNotificationsFromStorage() {
-    if (
-      this.isLocalStorageAvailable() &&
-      localStorage.getItem('notifications')
-    ) {
-      this.notifications = JSON.parse(localStorage.getItem('notifications')!);
-    }
-  }
-
-  // Save notifications to localStorage
-  private saveNotificationsToStorage() {
-    if (this.isLocalStorageAvailable()) {
-      console.log(this.notifications);
-      localStorage.setItem('notifications', JSON.stringify(this.notifications));
-    }
-  }
+  constructor(
+    private http: HttpClient,
+    private localStorageService: localStorageService
+  ) {}
 
   getAllGroups(): Observable<any[]> {
-    this.loadGroupsFromStorage(); // Ensure the latest data is loaded
-    return of(this.groups);
+    return this.http.get<any[]>(`${this.apiUrl}/groups`);
   }
-  // getGroups(): Observable<any[]> {
-  //   this.loadGroupsFromStorage();
-  //   return of(this.groups);
-  // }
 
   getUserGroups(): Observable<any[]> {
-    if (this.isLocalStorageAvailable()) {
-      const currentUser = JSON.parse(localStorage.getItem('currentUser')!);
-      const userGroups = this.groups.filter((group) =>
-        group.userIds.includes(currentUser.id)
-      );
-      return of(userGroups);
-    }
-    return of([]);
-  }
-
-  getNotifications(): Observable<Notification[]> {
-    this.loadNotificationsFromStorage();
-    return of(this.notifications);
-  }
-
-  sendJoinRequest(groupId: number): Observable<any> {
-    if (this.isLocalStorageAvailable()) {
-      console.log('gahga');
-      const currentUser = JSON.parse(localStorage.getItem('currentUser')!);
-      const group = this.groups.find((g) => g.id === groupId);
-      if (group) {
-        console.log(true);
-        const notification: Notification = {
-          message: `${currentUser.username} has requested to join ${group.name}`,
-          groupId: groupId,
-          userId: currentUser.id,
-        };
-        this.notifications.push(notification);
-        this.saveNotificationsToStorage();
-        return of({ message: 'Join request sent successfully' });
-      }
-    }
-    return of({ error: 'Group not found' });
-  }
-
-  approveJoinRequest(groupId: number, userId: number): Observable<any> {
-    const group = this.groups.find((g) => g.id === groupId);
-    if (group && !group.userIds.includes(userId)) {
-      group.userIds.push(userId);
-      this.saveGroupsToStorage();
-      return of({ message: 'User added to group successfully' });
-    }
-    return of({ error: 'Group not found or user already in group' });
-  }
-
-  deleteNotification(index: number): void {
-    this.notifications.splice(index, 1); // Remove notification from array
-    this.saveNotificationsToStorage(); // Save updated array to localStorage
-  }
-
-  createGroup(name: string, id: number) {
-    const newGroup = {
-      id: this.getGroupCount() + 1,
-      name,
-      userIds: [id],
-      channels: [],
-    };
-    this.groups.push(newGroup);
-    this.incrementGroupCount(); // Increment the group count
-    this.saveGroupsToStorage();
-  }
-
-  createChannel(channelName: string, groupId: number) {
-    console.log(groupId);
-    const group = this.groups.find((g) => g.id == groupId);
-    if (group) {
-      console.log(group.id);
-      const newChannel = { id: this.getChannelCount() + 1, name: channelName };
-      group.channels.push(newChannel);
-      this.incrementChannelCount(); // Increment the channel count
-      this.saveGroupsToStorage();
-    }
-  }
-
-  removeGroup(groupId: number) {
-    this.groups = this.groups.filter((group) => group.id !== groupId);
-    this.saveGroupsToStorage();
-  }
-
-  removeChannel(groupId: number, channelId: number) {
-    const group = this.groups.find((group) => group.id === groupId);
-    if (group) {
-      group.channels = group.channels.filter(
-        (channel: any) => channel.id !== channelId
-      );
-      this.saveGroupsToStorage();
-    }
-  }
-
-  banUserFromChannel(groupId: number, channelId: number, userId: number) {
-    console.log(
-      `User ${userId} is banned from Channel ${channelId} in Group ${groupId}`
+    return this.http.get<any[]>(
+      `${this.apiUrl}/groups/user-groups/${
+        this.localStorageService.getCurrentUser()._id
+      }`
     );
   }
 
-  sendUserRemovalNotification(userId: number): Observable<any> {
-    const currentUser = JSON.parse(localStorage.getItem('currentUser')!);
-    if (currentUser) {
-      const notification: Notification = {
-        message: `User ${currentUser.username} has been removed from the group.`,
-        groupId: 0, // Not specific to any group
+  getNotifications(): Observable<any[]> {
+    return this.http.get<any[]>(
+      `${this.apiUrl}/requests/request-by-admin/${
+        this.localStorageService.getCurrentUser()._id
+      }`
+    );
+  }
+
+  sendJoinRequest(groupId: any, userId: any) {
+    this.http
+      .post(`${this.apiUrl}/requests/request-access`, {
         userId: userId,
-      };
+        groupId: groupId,
+      })
+      .subscribe({
+        next: (response) => {
+          alert('Join request sent successfully.');
+        },
+        error: (error) => {
+          alert('Error sending join request.');
+        },
+      });
+  }
 
-      // Push the notification for the Super Admin
-      this.notifications.push(notification);
-      this.saveNotificationsToStorage(); // Save the updated notifications to localStorage
+  approveJoinRequest(requestId: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/requests/approve-request`, {
+      requestId,
+      status: 'Approved',
+    });
+  }
 
-      return of({ message: 'Notification sent to Super Admin.' });
-    }
+  deleteNotification(index: number): void {}
+
+  createGroup(name: string, id: any, callback?: () => void) {
+    alert(id);
+    const newGroup = {
+      // id: this.getGroupCount() + 1,
+      name,
+      admins: [id],
+      users: [id],
+      channels: [],
+    };
+
+    this.http.post(`${this.apiUrl}/groups`, newGroup).subscribe({
+      next: (response) => {
+        callback && callback();
+        alert('Group created successfully.');
+      },
+      error: (error) => {
+        alert('Error creating group.');
+      },
+    });
+  }
+
+  createChannel(name: string, group: any, callback?: () => void) {
+    const newChannel = {
+      name,
+      group,
+    };
+
+    this.http.post(`${this.apiUrl}/channels`, newChannel).subscribe({
+      next: (response) => {
+        callback && callback();
+        alert('Channel created successfully.');
+      },
+      error: (error) => {
+        alert('Error creating channel.');
+      },
+    });
+  }
+
+  removeGroup(groupId: string, callback?: () => void) {
+    this.http.delete(`${this.apiUrl}/groups/${groupId}`).subscribe({
+      next: (response) => {
+        callback && callback();
+        alert('Group removed successfully.');
+      },
+      error: (error) => {
+        alert('Error removing group.');
+      },
+    });
+  }
+
+  removeChannel(channelId: string, callback?: () => void) {
+    this.http.delete(`${this.apiUrl}/channels/${channelId}`).subscribe({
+      next: (response) => {
+        callback && callback();
+        alert('Channel removed successfully.');
+      },
+      error: (error) => {
+        alert('Error removing channel.');
+      },
+    });
+  }
+
+  banUserFromChannel(groupId: string, channelId: string, userId: string) {}
+
+  sendUserRemovalNotification(userId: string): Observable<any> {
     return of({ error: 'User not found.' });
   }
 
-  leaveGroup(groupId: number): Observable<any> {
-    const currentUser = JSON.parse(localStorage.getItem('currentUser')!);
-
-    // Find the group by ID
-    const group = this.groups.find((g) => g.id === groupId);
-
-    if (group) {
-      // Remove the current user's ID from the group's userIds array
-      group.userIds = group.userIds.filter(
-        (id: number) => id !== currentUser.id
-      );
-
-      // Save the updated groups to localStorage
-      this.saveGroupsToStorage();
-
-      return of({ message: 'Left group successfully' });
-    }
-
+  leaveGroup(groupId: string): Observable<any> {
     return of({ error: 'Group not found' });
   }
 
@@ -236,18 +141,7 @@ export class GroupService {
     return of({ message: `Registered interest in group ${groupName}` });
   }
 
-  joinChannel(groupId: number, channelId: number): Observable<any> {
-    const group = this.groups.find((group) => group.id === groupId);
-    if (group) {
-      const channel = group.channels.find(
-        (channel: any) => channel.id === channelId
-      );
-      if (channel) {
-        return of({
-          message: `Joined channel ${channel.name} in group ${group.name}`,
-        });
-      }
-    }
+  joinChannel(groupId: string, channelId: string): Observable<any> {
     return of({ error: 'Channel or Group not found' });
   }
 }

@@ -6,12 +6,10 @@
     <h3>Recent Notifications</h3>
     <ul *ngIf="notifications.length > 0">
       <li *ngFor="let notification of notifications; let i = index">
-        {{ notification.message }}
-        <button
-          class="action-button"
-          (click)="onApprove(notification, i)"
-          [disabled]="notification.groupId == 0"
-        >
+        {{ notification.user.email }} wants to join ${{
+          notification.group.name
+        }}
+        <button class="action-button" (click)="onApprove(notification._id)">
           Approve
         </button>
         <button class="remove-button" (click)="onDelete(i)">Delete</button>
@@ -109,7 +107,7 @@
             [(ngModel)]="selectedGroupId"
             name="selectedGroupId"
           >
-            <option *ngFor="let group of groups" [value]="group.id">
+            <option *ngFor="let group of groups" [value]="group._id">
               {{ group.name }}
             </option>
           </select>
@@ -123,7 +121,7 @@
       <ul *ngIf="groups.length > 0">
         <li *ngFor="let group of groups">
           {{ group.name }}
-          <button class="remove-button" (click)="onRemoveGroup(group.id)">
+          <button class="remove-button" (click)="onRemoveGroup(group._id)">
             Remove Group
           </button>
           <ul>
@@ -131,7 +129,7 @@
               {{ channel.name }}
               <button
                 class="remove-button"
-                (click)="onRemoveChannel(group.id, channel.id)"
+                (click)="onRemoveChannel(channel._id)"
               >
                 Remove Channel
               </button>
