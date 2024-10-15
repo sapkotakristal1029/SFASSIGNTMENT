@@ -84,6 +84,6 @@ export class AuthService {
     if (!userId) {
       return throwError(() => new Error('User ID is required.'));
     }
-    return this.http.delete(`${this.apiUrl}/user/${userId}`);
+    return this.http.delete(`${this.apiUrl}/users/${userId}`);
   }
 }

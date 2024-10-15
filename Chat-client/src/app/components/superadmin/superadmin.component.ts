@@ -144,9 +144,9 @@ export class SuperAdminComponent implements OnInit {
   }
 
   deleteAccount(): void {
-    const currentUser = this.authService.getCurrentUser();
+    const currentUser = this.localStorageService.getCurrentUser();
     if (currentUser) {
-      const userId = currentUser.id;
+      const userId = currentUser._id;
       this.authService.deleteAccount(userId).subscribe(() => {
         this.loadUsers();
         this.router.navigate(['/login']);

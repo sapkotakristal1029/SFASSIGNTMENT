@@ -2,8 +2,10 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^4.19.2",
+    "mongodb-memory-server": "^10.1.2",
     "mongoose": "^8.7.1",
     "socket.io": "^4.7.5",
+    "supertest": "^7.0.0",
     "swagger-autogen": "^2.23.7",
     "swagger-ui-express": "^5.0.1"
   },
